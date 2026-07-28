@@ -1687,7 +1687,7 @@ function executePDFExport() {
   if (modalBody) modalBody.scrollTop = 0;
 
   const opt = {
-    margin: [6, 6, 6, 6],
+    margin: [4, 4, 4, 4],
     filename: currentExportFilename,
     image: { type: 'jpeg', quality: 0.98 },
     html2canvas: { 
@@ -1872,66 +1872,66 @@ function downloadViaticosFormPDF() {
 
   const grandTotal = valHotel + totalComidasVal + valGasolina + valDeprec + valOtros;
 
-  // EXACT IMAGE REPLICA HTML STRUCTURE
+  // EXACT IMAGE REPLICA HTML STRUCTURE (COMPACT SINGLE PAGE FIT)
   const replicaBodyHtml = `
-    <div style="font-family: Arial, Helvetica, sans-serif; background: #ffffff; color: #000000; padding: 10px 5px;">
+    <div style="font-family: Arial, Helvetica, sans-serif; background: #ffffff; color: #000000; padding: 4px 2px;">
       
       <!-- Top Title Bar -->
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2.5px solid #000000; padding-bottom: 12px; margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000000; padding-bottom: 8px; margin-bottom: 10px;">
         <div>
-          <h1 style="font-size: 22px; font-weight: 800; margin: 0; color: #000000; letter-spacing: -0.02em;">Solicitud de Viáticos</h1>
-          <p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0; font-weight: 600;">GRUPO PREMIA · Generado 27 de julio de 2026</p>
+          <h1 style="font-size: 18px; font-weight: 800; margin: 0; color: #000000; letter-spacing: -0.02em;">Solicitud de Viáticos</h1>
+          <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0; font-weight: 600;">GRUPO PREMIA · Generado ${new Date().toLocaleDateString('es-GT')}</p>
         </div>
         
         <!-- Mundi Trofeos Logo Image -->
         <div>
-          <img src="logomundi.jpeg" alt="Mundi Trofeos Logo" style="max-height: 55px; max-width: 150px; object-fit: contain;">
+          <img src="logomundi.jpeg" alt="Mundi Trofeos Logo" style="max-height: 42px; max-width: 130px; object-fit: contain;">
         </div>
       </div>
 
       <!-- Metadata Grid (3 Columns) -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 12px; margin-bottom: 14px;">
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">SOLICITANTE</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${pilotFullName}</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px 12px; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px; margin-bottom: 10px;">
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">SOLICITANTE</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${pilotFullName}</div>
         </div>
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">PUESTO</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${puestoText}</div>
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">PUESTO</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${puestoText}</div>
         </div>
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">LICENCIA</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${licenciaText}</div>
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">LICENCIA</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${licenciaText}</div>
         </div>
 
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">VEHÍCULO</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${vehiculoText}</div>
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">VEHÍCULO</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${vehiculoText}</div>
         </div>
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">FECHA SALIDA</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${fSalida}</div>
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">FECHA SALIDA</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${fSalida}</div>
         </div>
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">FECHA REGRESO</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${fRegreso}</div>
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">FECHA REGRESO</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${fRegreso}</div>
         </div>
       </div>
 
       <!-- Motivo del Viaje -->
-      <div style="border-bottom: 1.5px solid #000000; padding-bottom: 8px; margin-bottom: 18px;">
-        <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">MOTIVO DEL VIAJE</div>
-        <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${motivo}</div>
+      <div style="border-bottom: 1.5px solid #000000; padding-bottom: 6px; margin-bottom: 10px;">
+        <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">MOTIVO DEL VIAJE</div>
+        <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${motivo}</div>
       </div>
 
       <!-- Section 1: Ruta y kilometraje -->
-      <div style="margin-bottom: 18px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000000; margin: 0 0 6px 0;">Ruta y kilometraje (${kmTotal.toFixed(1)} km totales)</h3>
+      <div style="margin-bottom: 10px;">
+        <h3 style="font-size: 12px; font-weight: 800; color: #000000; margin: 0 0 3px 0;">Ruta y kilometraje (${kmTotal.toFixed(1)} km totales)</h3>
         <table style="width: 100%; border-collapse: collapse;">
           <thead>
             <tr style="border-bottom: 1.5px solid #000000;">
-              <th style="text-align: left; font-size: 10px; font-weight: 800; color: #64748b; padding-bottom: 4px;">TRAMO</th>
-              <th style="text-align: right; font-size: 10px; font-weight: 800; color: #64748b; padding-bottom: 4px;">KM</th>
+              <th style="text-align: left; font-size: 9px; font-weight: 800; color: #64748b; padding-bottom: 2px;">TRAMO</th>
+              <th style="text-align: right; font-size: 9px; font-weight: 800; color: #64748b; padding-bottom: 2px;">KM</th>
             </tr>
           </thead>
           <tbody>
@@ -1941,15 +1941,15 @@ function downloadViaticosFormPDF() {
       </div>
 
       <!-- Section 2: Hotel -->
-      <div style="margin-bottom: 18px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000000; margin: 0 0 6px 0;">Hotel</h3>
+      <div style="margin-bottom: 10px;">
+        <h3 style="font-size: 12px; font-weight: 800; color: #000000; margin: 0 0 3px 0;">Hotel</h3>
         <table style="width: 100%; border-collapse: collapse;">
           <thead>
             <tr style="border-bottom: 1.5px solid #000000;">
-              <th style="text-align: left; font-size: 10px; font-weight: 800; color: #64748b; padding-bottom: 4px;">HOTEL (DEPTO.)</th>
-              <th style="text-align: left; font-size: 10px; font-weight: 800; color: #64748b; padding-bottom: 4px;">FECHAS</th>
-              <th style="text-align: center; font-size: 10px; font-weight: 800; color: #64748b; padding-bottom: 4px;">NOCHES</th>
-              <th style="text-align: right; font-size: 10px; font-weight: 800; color: #64748b; padding-bottom: 4px;">SUBTOTAL</th>
+              <th style="text-align: left; font-size: 9px; font-weight: 800; color: #64748b; padding-bottom: 2px;">HOTEL (DEPTO.)</th>
+              <th style="text-align: left; font-size: 9px; font-weight: 800; color: #64748b; padding-bottom: 2px;">FECHAS</th>
+              <th style="text-align: center; font-size: 9px; font-weight: 800; color: #64748b; padding-bottom: 2px;">NOCHES</th>
+              <th style="text-align: right; font-size: 9px; font-weight: 800; color: #64748b; padding-bottom: 2px;">SUBTOTAL</th>
             </tr>
           </thead>
           <tbody>
@@ -1959,21 +1959,21 @@ function downloadViaticosFormPDF() {
       </div>
 
       <!-- Section 3: Comidas -->
-      <div style="margin-bottom: 18px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000000; margin: 0 0 6px 0;">Comidas</h3>
-        <div style="border-top: 1.5px solid #000000; border-bottom: 1px solid #cbd5e1; padding: 8px 0; display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 13px; color: #0f172a; font-weight: 600;">
+      <div style="margin-bottom: 10px;">
+        <h3 style="font-size: 12px; font-weight: 800; color: #000000; margin: 0 0 3px 0;">Comidas</h3>
+        <div style="border-top: 1.5px solid #000000; border-bottom: 1px solid #cbd5e1; padding: 5px 0; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; color: #0f172a; font-weight: 600;">
             ${countDesayuno} desayuno(s) × Q${rateDesayuno}, ${countAlmuerzo} almuerzo(s) × Q${rateAlmuerzo}, ${countCena} cena(s) × Q${rateCena}
           </span>
-          <span style="font-size: 13px; font-weight: 800; color: #000000;">
+          <span style="font-size: 12px; font-weight: 800; color: #000000;">
             Q ${totalComidasVal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
           </span>
         </div>
       </div>
 
       <!-- Section 4: Combustible y depreciación -->
-      <div style="margin-bottom: 22px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000000; margin: 0 0 6px 0;">Combustible y depreciación</h3>
+      <div style="margin-bottom: 12px;">
+        <h3 style="font-size: 12px; font-weight: 800; color: #000000; margin: 0 0 3px 0;">Combustible y depreciación</h3>
         <table style="width: 100%; border-collapse: collapse; border-top: 1.5px solid #000000;">
           <tbody>
             ${fuelHtmlSection}
@@ -1982,15 +1982,15 @@ function downloadViaticosFormPDF() {
       </div>
 
       <!-- Rounded Total Box -->
-      <div style="border: 2px solid #0f172a; border-radius: 8px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; background: #ffffff; margin-bottom: 8px;">
-        <span style="font-size: 15px; font-weight: 800; color: #000000; letter-spacing: 0.05em;">TOTAL SOLICITADO</span>
-        <span style="font-size: 26px; font-weight: 900; color: #000000; font-family: monospace;">
+      <div style="border: 1.5px solid #0f172a; border-radius: 6px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; background: #ffffff; margin-bottom: 4px;">
+        <span style="font-size: 13px; font-weight: 800; color: #000000; letter-spacing: 0.05em;">TOTAL SOLICITADO</span>
+        <span style="font-size: 20px; font-weight: 900; color: #000000; font-family: monospace;">
           Q ${grandTotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
         </span>
       </div>
 
       <!-- Breakdown Subtext -->
-      <div style="text-align: right; font-size: 11px; color: #475569; margin-bottom: 35px; font-weight: 600;">
+      <div style="text-align: right; font-size: 10px; color: #475569; margin-bottom: 18px; font-weight: 600;">
         Hotel: Q ${valHotel.toFixed(2)} &nbsp;&nbsp;&nbsp; 
         Comidas: Q ${totalComidasVal.toFixed(2)} &nbsp;&nbsp;&nbsp; 
         Combustible: Q ${valGasolina.toFixed(2)} &nbsp;&nbsp;&nbsp; 
@@ -1999,17 +1999,17 @@ function downloadViaticosFormPDF() {
       </div>
 
       <!-- Signature Lines -->
-      <div style="display: flex; justify-content: space-around; text-align: center; font-size: 11px; color: #334155; margin-bottom: 24px;">
-        <div style="border-top: 1.5px solid #000000; width: 220px; padding-top: 6px; font-weight: 700;">
+      <div style="margin-top: 25px; display: flex; justify-content: space-around; text-align: center; font-size: 10px; color: #334155; margin-bottom: 12px;">
+        <div style="border-top: 1.5px solid #000000; width: 200px; padding-top: 5px; font-weight: 700;">
           Firma del solicitante
         </div>
-        <div style="border-top: 1.5px solid #000000; width: 220px; padding-top: 6px; font-weight: 700;">
+        <div style="border-top: 1.5px solid #000000; width: 200px; padding-top: 5px; font-weight: 700;">
           Autorizado por (Contabilidad)
         </div>
       </div>
 
       <!-- Footer Text -->
-      <div style="text-align: right; font-size: 10px; color: #94a3b8; font-weight: 500;">
+      <div style="text-align: right; font-size: 9px; color: #94a3b8; font-weight: 500;">
         Documento generado desde la calculadora de viáticos — Grupo Premia
       </div>
 
@@ -2109,128 +2109,128 @@ function downloadSingleDayFormPDF(recordParam = null) {
   const hidraulicoVal = record.fluids ? (record.fluids.hidraulico || 'Correcto') : 'Correcto';
 
   const singleDayPdfHtml = `
-    <div style="font-family: Arial, Helvetica, sans-serif; background: #ffffff; color: #000000; padding: 10px 5px;">
+    <div style="font-family: Arial, Helvetica, sans-serif; background: #ffffff; color: #000000; padding: 4px 2px;">
       
       <!-- Top Title Bar -->
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2.5px solid #000000; padding-bottom: 12px; margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000000; padding-bottom: 6px; margin-bottom: 8px;">
         <div>
-          <h1 style="font-size: 22px; font-weight: 800; margin: 0; color: #000000; letter-spacing: -0.02em;">Reporte de Ruta de 1 Día o Menos</h1>
-          <p style="font-size: 12px; color: #64748b; margin: 4px 0 0 0; font-weight: 600;">GRUPO PREMIA · Inspección Pre-Viaje · Generado ${new Date().toLocaleDateString('es-GT')}</p>
+          <h1 style="font-size: 18px; font-weight: 800; margin: 0; color: #000000; letter-spacing: -0.02em;">Reporte de Ruta de 1 Día o Menos</h1>
+          <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0; font-weight: 600;">GRUPO PREMIA · Inspección Pre-Viaje · Generado ${new Date().toLocaleDateString('es-GT')}</p>
         </div>
         
         <!-- Mundi Trofeos Logo Image -->
         <div>
-          <img src="logomundi.jpeg" alt="Mundi Trofeos Logo" style="max-height: 55px; max-width: 150px; object-fit: contain;">
+          <img src="logomundi.jpeg" alt="Mundi Trofeos Logo" style="max-height: 40px; max-width: 130px; object-fit: contain;">
         </div>
       </div>
 
       <!-- Metadata Grid (3 Columns) -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; border-bottom: 1px solid #cbd5e1; padding-bottom: 12px; margin-bottom: 14px;">
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">SOLICITANTE / PILOTO</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${pilotFullName}</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px 10px; border-bottom: 1px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 8px;">
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">SOLICITANTE / PILOTO</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${pilotFullName}</div>
         </div>
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">PUESTO</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${puestoText}</div>
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">PUESTO</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${puestoText}</div>
         </div>
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">LICENCIA</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${licenciaText}</div>
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">LICENCIA</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${licenciaText}</div>
         </div>
 
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">VEHÍCULO / UNIDAD</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${vehiculoText}</div>
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">VEHÍCULO / UNIDAD</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${vehiculoText}</div>
         </div>
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">FECHA SALIDA</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${record.date || '—'}</div>
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">FECHA SALIDA</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${record.date || '—'}</div>
         </div>
-        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">HORA DE SALIDA</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${record.startTime || '—'}</div>
+        <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 3px;">
+          <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">HORA DE SALIDA</div>
+          <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">${record.startTime || '—'}</div>
         </div>
       </div>
 
       <!-- Motivo del Viaje -->
-      <div style="border-bottom: 1.5px solid #000000; padding-bottom: 8px; margin-bottom: 18px;">
-        <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">TIPO DE RECORRIDO</div>
-        <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">Recorrido Local / Diario (-1 Día) — Reparto Urbano</div>
+      <div style="border-bottom: 1.5px solid #000000; padding-bottom: 4px; margin-bottom: 8px;">
+        <div style="font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">TIPO DE RECORRIDO</div>
+        <div style="font-size: 12px; font-weight: 800; color: #000000; margin-top: 1px;">Recorrido Local / Diario (-1 Día) — Reparto Urbano</div>
       </div>
 
       <!-- Section 1: Limpieza, Combustible & Odómetro -->
-      <div style="margin-bottom: 18px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000000; margin: 0 0 6px 0;">1. Limpieza, Combustible & Odómetro</h3>
+      <div style="margin-bottom: 8px;">
+        <h3 style="font-size: 12px; font-weight: 800; color: #000000; margin: 0 0 3px 0;">1. Limpieza, Combustible & Odómetro</h3>
         <table style="width: 100%; border-collapse: collapse; border-top: 1.5px solid #000000;">
           <tbody>
             <tr>
-              <td style="padding: 6px 0; font-size: 13px; color: #334155;">Limpieza Interior</td>
-              <td style="padding: 6px 0; text-align: right; font-size: 13px; font-weight: 700; color: #0f172a;">${record.interiorCleanliness || 'Bueno'}</td>
+              <td style="padding: 2px 0; font-size: 11px; color: #334155;">Limpieza Interior</td>
+              <td style="padding: 2px 0; text-align: right; font-size: 11px; font-weight: 700; color: #0f172a;">${record.interiorCleanliness || 'Bueno'}</td>
             </tr>
             <tr>
-              <td style="padding: 6px 0; font-size: 13px; color: #334155;">Limpieza Exterior</td>
-              <td style="padding: 6px 0; text-align: right; font-size: 13px; font-weight: 700; color: #0f172a;">${record.exteriorCleanliness || 'Bueno'}</td>
+              <td style="padding: 2px 0; font-size: 11px; color: #334155;">Limpieza Exterior</td>
+              <td style="padding: 2px 0; text-align: right; font-size: 11px; font-weight: 700; color: #0f172a;">${record.exteriorCleanliness || 'Bueno'}</td>
             </tr>
             <tr>
-              <td style="padding: 6px 0; font-size: 13px; color: #334155;">Nivel de Combustible</td>
-              <td style="padding: 6px 0; text-align: right; font-size: 13px; font-weight: 700; color: #0f172a;">${record.fuelLevel || 'Lleno'}</td>
+              <td style="padding: 2px 0; font-size: 11px; color: #334155;">Nivel de Combustible</td>
+              <td style="padding: 2px 0; text-align: right; font-size: 11px; font-weight: 700; color: #0f172a;">${record.fuelLevel || 'Lleno'}</td>
             </tr>
             <tr>
-              <td style="padding: 6px 0; font-size: 13px; color: #334155;">Lectura de Odómetro</td>
-              <td style="padding: 6px 0; text-align: right; font-size: 13px; font-weight: 700; color: #0f172a;">${record.odometer || 'N/A'}</td>
+              <td style="padding: 2px 0; font-size: 11px; color: #334155;">Lectura de Odómetro</td>
+              <td style="padding: 2px 0; text-align: right; font-size: 11px; font-weight: 700; color: #0f172a;">${record.odometer || 'N/A'}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <!-- Section 2: Defectos Mecánicos & Carrocería -->
-      <div style="margin-bottom: 18px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000000; margin: 0 0 6px 0;">2. Carrocería & Defectos Mecánicos</h3>
-        <div style="border-top: 1.5px solid #000000; border-bottom: 1px solid #cbd5e1; padding: 8px 0; display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 13px; color: #0f172a; font-weight: 600;">¿Tiene Defectos Mecánicos o Daños?</span>
-          <span style="font-size: 13px; font-weight: 800; color: ${record.hasDefects ? '#dc2626' : '#059669'};">${record.hasDefects ? 'SÍ' : 'NO'}</span>
+      <div style="margin-bottom: 8px;">
+        <h3 style="font-size: 12px; font-weight: 800; color: #000000; margin: 0 0 3px 0;">2. Carrocería & Defectos Mecánicos</h3>
+        <div style="border-top: 1.5px solid #000000; border-bottom: 1px solid #cbd5e1; padding: 4px 0; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 11px; color: #0f172a; font-weight: 600;">¿Tiene Defectos Mecánicos o Daños?</span>
+          <span style="font-size: 11px; font-weight: 800; color: ${record.hasDefects ? '#dc2626' : '#059669'};">${record.hasDefects ? 'SÍ' : 'NO'}</span>
         </div>
-        <div style="padding: 6px 0; font-size: 12px; color: #475569;">
+        <div style="padding: 3px 0; font-size: 11px; color: #475569;">
           <strong>Detalle:</strong> ${defectsText}
         </div>
         ${record.defectPhoto ? `
-          <div style="margin-top: 8px; text-align: center; background: #ffffff; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1;">
-            <img src="${record.defectPhoto}" style="max-width: 100%; max-height: 180px; object-fit: contain; border-radius: 4px;">
-            <p style="font-size: 10px; color: #64748b; margin: 4px 0 0 0; font-weight: 600;">Evidencia fotográfica de daño o defecto mecánico</p>
+          <div style="margin-top: 4px; text-align: center; background: #ffffff; padding: 4px; border-radius: 4px; border: 1px solid #cbd5e1;">
+            <img src="${record.defectPhoto}" style="max-width: 100%; max-height: 110px; object-fit: contain; border-radius: 4px;">
+            <p style="font-size: 9px; color: #64748b; margin: 2px 0 0 0; font-weight: 600;">Evidencia fotográfica de daño o defecto mecánico</p>
           </div>
         ` : ''}
       </div>
 
       <!-- Section 3: Niveles de Fluidos -->
-      <div style="margin-bottom: 18px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000000; margin: 0 0 6px 0;">3. Niveles de Fluidos</h3>
+      <div style="margin-bottom: 8px;">
+        <h3 style="font-size: 12px; font-weight: 800; color: #000000; margin: 0 0 3px 0;">3. Niveles de Fluidos</h3>
         <table style="width: 100%; border-collapse: collapse; border-top: 1.5px solid #000000;">
           <tbody>
             <tr>
-              <td style="padding: 4px 0; font-size: 13px; color: #334155;">Aceite de Motor</td>
-              <td style="padding: 4px 0; text-align: right; font-size: 13px; font-weight: 700; color: #0f172a;">${aceiteVal}</td>
+              <td style="padding: 2px 0; font-size: 11px; color: #334155;">Aceite de Motor</td>
+              <td style="padding: 2px 0; text-align: right; font-size: 11px; font-weight: 700; color: #0f172a;">${aceiteVal}</td>
             </tr>
             <tr>
-              <td style="padding: 4px 0; font-size: 13px; color: #334155;">Agua / Radiador</td>
-              <td style="padding: 4px 0; text-align: right; font-size: 13px; font-weight: 700; color: #0f172a;">${radiadorVal}</td>
+              <td style="padding: 2px 0; font-size: 11px; color: #334155;">Agua / Radiador</td>
+              <td style="padding: 2px 0; text-align: right; font-size: 11px; font-weight: 700; color: #0f172a;">${radiadorVal}</td>
             </tr>
             <tr>
-              <td style="padding: 4px 0; font-size: 13px; color: #334155;">Líquido de Frenos</td>
-              <td style="padding: 4px 0; text-align: right; font-size: 13px; font-weight: 700; color: #0f172a;">${frenosVal}</td>
+              <td style="padding: 2px 0; font-size: 11px; color: #334155;">Líquido de Frenos</td>
+              <td style="padding: 2px 0; text-align: right; font-size: 11px; font-weight: 700; color: #0f172a;">${frenosVal}</td>
             </tr>
             <tr>
-              <td style="padding: 4px 0; font-size: 13px; color: #334155;">Líquido Hidráulico</td>
-              <td style="padding: 4px 0; text-align: right; font-size: 13px; font-weight: 700; color: #0f172a;">${hidraulicoVal}</td>
+              <td style="padding: 2px 0; font-size: 11px; color: #334155;">Líquido Hidráulico</td>
+              <td style="padding: 2px 0; text-align: right; font-size: 11px; font-weight: 700; color: #0f172a;">${hidraulicoVal}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
       <!-- Section 4: Kit de Emergencia & Documentación -->
-      <div style="margin-bottom: 22px;">
-        <h3 style="font-size: 14px; font-weight: 800; color: #000000; margin: 0 0 6px 0;">4. Kit de Emergencia & Documentos</h3>
-        <div style="border-top: 1.5px solid #000000; padding-top: 6px; font-size: 12px; color: #334155; display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+      <div style="margin-bottom: 10px;">
+        <h3 style="font-size: 12px; font-weight: 800; color: #000000; margin: 0 0 3px 0;">4. Kit de Emergencia & Documentos</h3>
+        <div style="border-top: 1.5px solid #000000; padding-top: 4px; font-size: 11px; color: #334155; display: grid; grid-template-columns: 1fr 1fr; gap: 4px 8px;">
           <div>• Llanta de Repuesto: <strong>${record.kit ? (record.kit.llanta || 'Sí') : 'Sí'}</strong></div>
           <div>• Triquet / Gato: <strong>${record.kit ? (record.kit.gato || 'Sí') : 'Sí'}</strong></div>
           <div>• Triángulos de Señal: <strong>${record.kit ? (record.kit.triangulo || 'Sí') : 'Sí'}</strong></div>
@@ -2241,30 +2241,30 @@ function downloadSingleDayFormPDF(recordParam = null) {
       </div>
 
       <!-- Rounded Total Box -->
-      <div style="border: 2px solid #0f172a; border-radius: 8px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; background: #ffffff; margin-bottom: 8px;">
-        <span style="font-size: 15px; font-weight: 800; color: #000000; letter-spacing: 0.05em;">ESTADO DE INSPECCIÓN</span>
-        <span style="font-size: 20px; font-weight: 900; color: #059669;">
+      <div style="border: 1.5px solid #0f172a; border-radius: 6px; padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; background: #ffffff; margin-bottom: 4px;">
+        <span style="font-size: 12px; font-weight: 800; color: #000000; letter-spacing: 0.05em;">ESTADO DE INSPECCIÓN</span>
+        <span style="font-size: 16px; font-weight: 900; color: #059669;">
           APROBADO PARA RUTA
         </span>
       </div>
 
       <!-- Breakdown Subtext -->
-      <div style="text-align: right; font-size: 11px; color: #475569; margin-bottom: 35px; font-weight: 600;">
+      <div style="text-align: right; font-size: 10px; color: #475569; margin-bottom: 12px; font-weight: 600;">
         Interior: ${record.interiorCleanliness || 'Bueno'} &nbsp;&nbsp;&nbsp; Exterior: ${record.exteriorCleanliness || 'Bueno'} &nbsp;&nbsp;&nbsp; Combustible: ${record.fuelLevel || 'Lleno'} &nbsp;&nbsp;&nbsp; Odómetro: ${record.odometer || 'N/A'}
       </div>
 
       <!-- Signature Lines -->
-      <div style="display: flex; justify-content: space-around; text-align: center; font-size: 11px; color: #334155; margin-bottom: 24px;">
-        <div style="border-top: 1.5px solid #000000; width: 220px; padding-top: 6px; font-weight: 700;">
+      <div style="margin-top: 25px; display: flex; justify-content: space-around; text-align: center; font-size: 10px; color: #334155; margin-bottom: 12px;">
+        <div style="border-top: 1.5px solid #000000; width: 200px; padding-top: 5px; font-weight: 700;">
           Firma del piloto
         </div>
-        <div style="border-top: 1.5px solid #000000; width: 220px; padding-top: 6px; font-weight: 700;">
+        <div style="border-top: 1.5px solid #000000; width: 200px; padding-top: 5px; font-weight: 700;">
           Verificado por Supervisión
         </div>
       </div>
 
       <!-- Footer Text -->
-      <div style="text-align: right; font-size: 10px; color: #94a3b8; font-weight: 500;">
+      <div style="text-align: right; font-size: 9px; color: #94a3b8; font-weight: 500;">
         Documento generado desde el módulo de inspección pre-viaje — Grupo Premia
       </div>
 
