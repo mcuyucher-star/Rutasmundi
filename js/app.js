@@ -307,11 +307,36 @@ function populatePilotDropdown() {
   const select = document.getElementById('insp-pilot-id');
   if (!select) return;
 
-  select.innerHTML = pilots.map(p => `
-    <option value="${p.id}" ${p.id === currentSessionUser.userId ? 'selected' : ''}>
-      ${p.firstName} ${p.lastName} (${p.country})
-    </option>
-  `).join('');
+  const currentUserId = currentSessionUser ? currentSessionUser.userId : '';
+  const currentUserName = currentSessionUser ? (currentSessionUser.name || '').toLowerCase().trim() : '';
+
+  const matchedPilot = pilots.find(p => 
+    p.id === currentUserId || 
+    `${p.firstName} ${p.lastName}`.toLowerCase().trim() === currentUserName
+  );
+
+  select.innerHTML = pilots.map(p => {
+    const isSelected = matchedPilot ? p.id === matchedPilot.id : p.id === currentUserId;
+    return `
+      <option value="${p.id}" ${isSelected ? 'selected' : ''}>
+        ${p.firstName} ${p.lastName} (${p.country})
+      </option>
+    `;
+  }).join('');
+
+  if (currentSessionUser && currentSessionUser.role === 'pilot') {
+    select.disabled = true;
+    select.style.pointerEvents = 'none';
+    select.style.background = 'var(--bg-app)';
+    select.style.opacity = '0.95';
+    select.style.cursor = 'not-allowed';
+  } else {
+    select.disabled = false;
+    select.style.pointerEvents = 'auto';
+    select.style.background = '#ffffff';
+    select.style.opacity = '1';
+    select.style.cursor = 'default';
+  }
 }
 
 function populateVehicleDropdown() {
@@ -583,11 +608,37 @@ function initViaticosForm() {
 
   const solSelect = document.getElementById('vreq-solicitante');
   if (solSelect) {
-    solSelect.innerHTML = pilots.map(p => `
-      <option value="${p.id}" ${p.id === currentSessionUser.userId ? 'selected' : ''}>
-        ${p.firstName} ${p.lastName} (${p.country})
-      </option>
-    `).join('');
+    const currentUserId = currentSessionUser ? currentSessionUser.userId : '';
+    const currentUserName = currentSessionUser ? (currentSessionUser.name || '').toLowerCase().trim() : '';
+
+    const matchedPilot = pilots.find(p => 
+      p.id === currentUserId || 
+      `${p.firstName} ${p.lastName}`.toLowerCase().trim() === currentUserName
+    );
+
+    solSelect.innerHTML = pilots.map(p => {
+      const isSelected = matchedPilot ? p.id === matchedPilot.id : p.id === currentUserId;
+      return `
+        <option value="${p.id}" ${isSelected ? 'selected' : ''}>
+          ${p.firstName} ${p.lastName} (${p.country})
+        </option>
+      `;
+    }).join('');
+
+    if (currentSessionUser && currentSessionUser.role === 'pilot') {
+      solSelect.disabled = true;
+      solSelect.style.pointerEvents = 'none';
+      solSelect.style.background = 'var(--bg-app)';
+      solSelect.style.opacity = '0.95';
+      solSelect.style.cursor = 'not-allowed';
+    } else {
+      solSelect.disabled = false;
+      solSelect.style.pointerEvents = 'auto';
+      solSelect.style.background = '#ffffff';
+      solSelect.style.opacity = '1';
+      solSelect.style.cursor = 'default';
+    }
+
     handleViaticosSolicitanteChange();
   }
 
