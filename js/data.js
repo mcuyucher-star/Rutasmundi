@@ -72,10 +72,10 @@ const DEFAULT_VEHICLES = [
     policyNumber: 'POL-GTM-99881',
     policyExpiration: '2027-06-30',
     policyPhone: '+502 2339-5555',
-    unitName: 'Unidad H1',
+    unitName: 'Toyota HiAce (P-123GTM)',
     chassisNumber: 'JTEBR3FJ2CK012345',
     country: 'Guatemala',
-    rendimiento: 35, // km por galón
+    rendimiento: 35,
     tipoCombustible: 'Diésel',
     esEmpresa: true
   },
@@ -90,28 +90,82 @@ const DEFAULT_VEHICLES = [
     policyNumber: 'POL-HND-55442',
     policyExpiration: '2026-11-15',
     policyPhone: '+504 2235-9900',
-    unitName: 'Unidad H2',
+    unitName: 'Hyundai H100 (C-456HND)',
     chassisNumber: 'KMHDN46D08U123456',
     country: 'Honduras',
-    rendimiento: 28, // km por galón
+    rendimiento: 28,
     tipoCombustible: 'Diésel',
     esEmpresa: true
   },
   {
     id: 'v3',
-    plate: 'PU-789GTM',
+    plate: 'P-789SLV',
+    brand: 'Chevrolet',
+    model: 'Suburban',
+    vehicleType: 'SUV',
+    year: '2024',
+    hasInsurance: 'Sí',
+    policyNumber: 'POL-SLV-33211',
+    policyExpiration: '2027-12-10',
+    policyPhone: '+503 2244-8800',
+    unitName: 'Chevrolet Suburban (P-789SLV)',
+    chassisNumber: '1GNSKCKC4RR112233',
+    country: 'El Salvador',
+    rendimiento: 32,
+    tipoCombustible: 'Gasolina',
+    esEmpresa: true
+  },
+  {
+    id: 'v4',
+    plate: 'P-554GTM',
     brand: 'Isuzu',
     model: 'D-Max',
     vehicleType: 'Pickup',
     year: '2024',
-    hasInsurance: 'No',
-    policyNumber: 'N/A',
-    policyExpiration: '',
-    policyPhone: 'N/A',
-    unitName: 'Unidad H3',
-    chassisNumber: 'JTEBR3FJ2DK098765',
+    hasInsurance: 'Sí',
+    policyNumber: 'POL-GTM-77119',
+    policyExpiration: '2027-08-25',
+    policyPhone: '+502 2200-1122',
+    unitName: 'Isuzu D-Max (P-554GTM)',
+    chassisNumber: 'MP1TFR85JAT987654',
     country: 'Guatemala',
-    rendimiento: 40, // km por galón
+    rendimiento: 40,
+    tipoCombustible: 'Diésel',
+    esEmpresa: true
+  },
+  {
+    id: 'v5',
+    plate: 'C-882NIC',
+    brand: 'Isuzu',
+    model: 'NPR',
+    vehicleType: 'Camión',
+    year: '2023',
+    hasInsurance: 'Sí',
+    policyNumber: 'POL-NIC-44556',
+    policyExpiration: '2026-09-18',
+    policyPhone: '+505 2266-7788',
+    unitName: 'Isuzu NPR (C-882NIC)',
+    chassisNumber: 'JALNPR75L70054321',
+    country: 'Nicaragua',
+    rendimiento: 22,
+    tipoCombustible: 'Diésel',
+    esEmpresa: true
+  },
+  {
+    id: 'v6',
+    plate: 'P-991CRI',
+    brand: 'Chevrolet',
+    model: 'Silverado',
+    vehicleType: 'Pickup',
+    year: '2023',
+    hasInsurance: 'Sí',
+    policyNumber: 'POL-CRI-66778',
+    policyExpiration: '2027-04-30',
+    policyPhone: '+506 2522-3344',
+    unitName: 'Chevrolet Silverado (P-991CRI)',
+    chassisNumber: '3GCUKREC5GG998877',
+    country: 'Costa Rica',
+    rendimiento: 30,
     tipoCombustible: 'Gasolina',
     esEmpresa: true
   }
@@ -216,7 +270,23 @@ const Storage = {
       localStorage.setItem(STORAGE_KEYS.VEHICLES, JSON.stringify(DEFAULT_VEHICLES));
       return DEFAULT_VEHICLES;
     }
-    return JSON.parse(data);
+    const list = JSON.parse(data);
+    const updated = list.map(v => {
+      const matchSeed = DEFAULT_VEHICLES.find(sv => sv.id === v.id || sv.plate === v.plate) || {};
+      return {
+        ...matchSeed,
+        ...v,
+        brand: v.brand || matchSeed.brand || 'Toyota',
+        model: v.model || matchSeed.model || 'HiAce',
+        vehicleType: v.vehicleType || matchSeed.vehicleType || 'Panel',
+        year: v.year || matchSeed.year || '2024',
+        hasInsurance: v.hasInsurance || matchSeed.hasInsurance || 'Sí',
+        policyNumber: v.hasInsurance === 'No' ? 'N/A' : (v.policyNumber || matchSeed.policyNumber || 'POL-GTM-99881'),
+        policyExpiration: v.hasInsurance === 'No' ? '' : (v.policyExpiration || matchSeed.policyExpiration || '2027-06-30'),
+        policyPhone: v.hasInsurance === 'No' ? 'N/A' : (v.policyPhone || matchSeed.policyPhone || '+502 2339-5555')
+      };
+    });
+    return updated;
   },
   saveVehicles(vehicles) {
     localStorage.setItem(STORAGE_KEYS.VEHICLES, JSON.stringify(vehicles));
