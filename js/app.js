@@ -309,10 +309,11 @@ function getCountryAcronym(countryName) {
   if (!countryName) return 'GTM';
   const c = countryName.trim().toLowerCase();
   if (c.includes('guatemala')) return 'GTM';
-  if (c.includes('honduras')) return 'HND';
   if (c.includes('salvador')) return 'SLV';
+  if (c.includes('honduras')) return 'HND';
   if (c.includes('nicaragua')) return 'NIC';
   if (c.includes('costa rica')) return 'CRI';
+  if (c.includes('belice') || c.includes('belize')) return 'BLZ';
   return countryName.substring(0, 3).toUpperCase();
 }
 
@@ -1806,6 +1807,37 @@ function openModalAddVehicle() {
   openModal('modal-add-vehicle'); 
 }
 
+function toggleSecondLicenseFields(hasSecond) {
+  const container = document.getElementById('second-license-container');
+  const label = document.getElementById('lbl-has-second-license');
+  const chk = document.getElementById('chk-has-second-license');
+  const card = chk?.closest('.defect-switch-card-main');
+
+  if (hasSecond) {
+    if (container) container.style.display = 'block';
+    if (label) {
+      label.textContent = 'Sí';
+      label.style.background = '#d1fae5';
+      label.style.color = '#047857';
+    }
+    if (card) {
+      card.style.borderColor = '#10b981';
+      card.style.background = '#ecfdf5';
+    }
+  } else {
+    if (container) container.style.display = 'none';
+    if (label) {
+      label.textContent = 'No';
+      label.style.background = '#f1f5f9';
+      label.style.color = '#64748b';
+    }
+    if (card) {
+      card.style.borderColor = 'var(--border-light)';
+      card.style.background = '#ffffff';
+    }
+  }
+}
+
 function openModalAddPilot() {
   const editIdInput = document.getElementById('edit-pilot-id');
   if (editIdInput) editIdInput.value = '';
@@ -1825,6 +1857,20 @@ function openModalAddPilot() {
   document.getElementById('newp-expdate').value = '';
   document.getElementById('newp-country').value = 'Guatemala';
   document.getElementById('newp-puesto').value = '';
+
+  const chkSecond = document.getElementById('chk-has-second-license');
+  if (chkSecond) {
+    chkSecond.checked = false;
+    toggleSecondLicenseFields(false);
+  }
+
+  const lic2 = document.getElementById('newp-license2');
+  const type2 = document.getElementById('newp-type2');
+  const exp2 = document.getElementById('newp-expdate2');
+  if (lic2) lic2.value = '';
+  if (type2) type2.value = 'A';
+  if (exp2) exp2.value = '';
+
   adminNewPilotPhotoUrl = '';
 
   const previewContainer = document.getElementById('newp-photo-preview-container');
@@ -1857,6 +1903,20 @@ function editPilot(pilotId) {
   document.getElementById('newp-country').value = p.country || 'Guatemala';
   document.getElementById('newp-puesto').value = p.puesto || '';
 
+  const chkSecond = document.getElementById('chk-has-second-license');
+  const hasSec = !!p.hasSecondLicense;
+  if (chkSecond) {
+    chkSecond.checked = hasSec;
+    toggleSecondLicenseFields(hasSec);
+  }
+
+  const lic2 = document.getElementById('newp-license2');
+  const type2 = document.getElementById('newp-type2');
+  const exp2 = document.getElementById('newp-expdate2');
+  if (lic2) lic2.value = p.licenseNumber2 || '';
+  if (type2) type2.value = p.licenseType2 || 'A';
+  if (exp2) exp2.value = p.expirationDate2 || '';
+
   adminNewPilotPhotoUrl = p.licensePhoto || '';
   const previewContainer = document.getElementById('newp-photo-preview-container');
   const previewImg = document.getElementById('newp-photo-preview-img');
@@ -1886,6 +1946,11 @@ function handleSavePilotSubmit(e) {
   const puesto = document.getElementById('newp-puesto').value.trim();
   const country = document.getElementById('newp-country').value;
 
+  const hasSecondLicense = !!document.getElementById('chk-has-second-license')?.checked;
+  const licenseNumber2 = hasSecondLicense ? document.getElementById('newp-license2')?.value.trim() : '';
+  const licenseType2 = hasSecondLicense ? document.getElementById('newp-type2')?.value : '';
+  const expirationDate2 = hasSecondLicense ? document.getElementById('newp-expdate2')?.value : '';
+
   let pilots = Storage.getPilots();
 
   if (editId) {
@@ -1903,6 +1968,10 @@ function handleSavePilotSubmit(e) {
         expirationDate,
         puesto,
         country,
+        hasSecondLicense,
+        licenseNumber2,
+        licenseType2,
+        expirationDate2,
         licensePhoto: adminNewPilotPhotoUrl || pilots[index].licensePhoto
       };
 
@@ -1922,6 +1991,10 @@ function handleSavePilotSubmit(e) {
       expirationDate,
       puesto,
       country,
+      hasSecondLicense,
+      licenseNumber2,
+      licenseType2,
+      expirationDate2,
       licensePhoto: adminNewPilotPhotoUrl
     };
 
