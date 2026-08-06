@@ -1082,14 +1082,15 @@
       </div>
     </div>
 
-    <!-- MODAL: ADD VEHICLE -->
+    <!-- MODAL: ADD / EDIT VEHICLE -->
     <div class="modal-backdrop" id="modal-add-vehicle">
       <div class="modal-container-card" style="max-width: 580px;">
         <div class="modal-header-bar">
-          <h3>Registrar Nuevo Vehículo</h3>
+          <h3 id="modal-vehicle-title">Registrar Nuevo Vehículo</h3>
           <button type="button" class="modal-close-icon" onclick="closeModal('modal-add-vehicle')">&times;</button>
         </div>
         <form onsubmit="handleSaveVehicleSubmit(event)">
+          <input type="hidden" id="edit-vehicle-id" value="">
           <div class="modal-body-content">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
               <div class="form-field">
@@ -1176,7 +1177,7 @@
           </div>
           <div class="modal-footer-bar">
             <button type="button" class="btn-secondary-custom" onclick="closeModal('modal-add-vehicle')">Cancelar</button>
-            <button type="submit" class="btn-primary-lg" style="width: auto; padding: 10px 20px;">Guardar Vehículo</button>
+            <button type="submit" id="btn-submit-vehicle" class="btn-primary-lg" style="width: auto; padding: 10px 20px;">Guardar Vehículo</button>
           </div>
         </form>
       </div>

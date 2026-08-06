@@ -1555,9 +1555,14 @@ function renderAdminVehiclesTable() {
         <td>${v.policyExpiration || 'N/A'}</td>
         <td><span style="font-size:12px; font-weight:600; color:#334155;">${v.policyPhone || 'N/A'}</span></td>
         <td>
-          <button type="button" class="btn-logout-nav" onclick="deleteVehicle('${v.id}')" style="padding: 4px 10px; font-size: 11px;">
-            Eliminar
-          </button>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button type="button" class="btn-secondary-custom" onclick="editVehicle('${v.id}')" style="padding: 4px 8px; font-size: 11px; font-weight: 700;">
+              ✏️ Editar
+            </button>
+            <button type="button" class="btn-logout-nav" onclick="deleteVehicle('${v.id}')" style="padding: 4px 8px; font-size: 11px;">
+              🗑️ Eliminar
+            </button>
+          </div>
         </td>
       </tr>
     `;
@@ -1837,8 +1842,63 @@ function deletePilot(id) {
   }
 }
 
+function openModalAddVehicle() {
+  const editIdInput = document.getElementById('edit-vehicle-id');
+  if (editIdInput) editIdInput.value = '';
+
+  const titleEl = document.getElementById('modal-vehicle-title');
+  if (titleEl) titleEl.textContent = 'Registrar Nuevo Vehículo';
+
+  const btnSubmit = document.getElementById('btn-submit-vehicle');
+  if (btnSubmit) btnSubmit.textContent = 'Guardar Vehículo';
+
+  document.getElementById('newv-plate').value = '';
+  document.getElementById('newv-year').value = '';
+  document.getElementById('newv-brand').value = '';
+  document.getElementById('newv-model').value = '';
+  document.getElementById('newv-type').value = 'Panel';
+  document.getElementById('newv-country').value = 'Guatemala';
+  setInsuranceChoice('Sí');
+  document.getElementById('newv-policy-number').value = '';
+  document.getElementById('newv-policy-exp').value = '';
+  document.getElementById('newv-policy-phone').value = '';
+
+  openModal('modal-add-vehicle');
+}
+
+function editVehicle(vehicleId) {
+  const vehicles = Storage.getVehicles();
+  const v = vehicles.find(item => item.id === vehicleId);
+  if (!v) return;
+
+  const editIdInput = document.getElementById('edit-vehicle-id');
+  if (editIdInput) editIdInput.value = v.id;
+
+  const titleEl = document.getElementById('modal-vehicle-title');
+  if (titleEl) titleEl.textContent = 'Editar Registro de Vehículo';
+
+  const btnSubmit = document.getElementById('btn-submit-vehicle');
+  if (btnSubmit) btnSubmit.textContent = 'Guardar Cambios';
+
+  document.getElementById('newv-plate').value = v.plate || '';
+  document.getElementById('newv-year').value = v.year || '';
+  document.getElementById('newv-brand').value = v.brand || '';
+  document.getElementById('newv-model').value = v.model || '';
+  document.getElementById('newv-type').value = v.vehicleType || 'Panel';
+  document.getElementById('newv-country').value = v.country || 'Guatemala';
+
+  setInsuranceChoice(v.hasInsurance === 'No' ? 'No' : 'Sí');
+
+  document.getElementById('newv-policy-number').value = v.policyNumber || '';
+  document.getElementById('newv-policy-exp').value = v.policyExpiration || '';
+  document.getElementById('newv-policy-phone').value = v.policyPhone || '';
+
+  openModal('modal-add-vehicle');
+}
+
 function handleSaveVehicleSubmit(e) {
   e.preventDefault();
+  const editId = document.getElementById('edit-vehicle-id')?.value;
   const plate = document.getElementById('newv-plate').value.trim().toUpperCase();
   const year = document.getElementById('newv-year').value.trim();
   const brand = document.getElementById('newv-brand').value.trim();
@@ -1852,35 +1912,66 @@ function handleSaveVehicleSubmit(e) {
   const policyPhone = hasInsurance === 'Sí' ? (document.getElementById('newv-policy-phone').value.trim() || 'N/A') : 'N/A';
   const unitName = `${brand} ${model}`;
 
-  const vehicles = Storage.getVehicles();
-  if (vehicles.some(v => v.plate.toLowerCase() === plate.toLowerCase())) {
-    showToast(`La placa "${plate}" ya existe en la base de datos.`, 'error');
-    return;
+  let vehicles = Storage.getVehicles();
+
+  if (editId) {
+    // EDIT EXISTING VEHICLE
+    const index = vehicles.findIndex(v => v.id === editId);
+    if (index !== -1) {
+      if (vehicles.some((v, idx) => idx !== index && v.plate.toLowerCase() === plate.toLowerCase())) {
+        showToast(`La placa "${plate}" ya pertenece a otro vehículo.`, 'error');
+        return;
+      }
+
+      vehicles[index] = {
+        ...vehicles[index],
+        plate,
+        year,
+        brand,
+        model,
+        vehicleType,
+        country,
+        hasInsurance,
+        policyNumber,
+        policyExpiration,
+        policyPhone,
+        unitName
+      };
+
+      Storage.saveVehicles(vehicles);
+      showToast(`Vehículo ${brand} ${model} (Placa ${plate}) actualizado con éxito.`, 'success');
+    }
+  } else {
+    // CREATE NEW VEHICLE
+    if (vehicles.some(v => v.plate.toLowerCase() === plate.toLowerCase())) {
+      showToast(`La placa "${plate}" ya existe en la base de datos.`, 'error');
+      return;
+    }
+
+    const newVehicle = {
+      id: `v_${Date.now()}`,
+      plate,
+      brand,
+      model,
+      vehicleType,
+      year,
+      hasInsurance,
+      policyNumber,
+      policyExpiration,
+      policyPhone,
+      unitName,
+      country,
+      rendimiento: 35,
+      tipoCombustible: 'Diésel',
+      chassisNumber: `CH-${Date.now().toString().slice(-8)}`
+    };
+
+    vehicles.push(newVehicle);
+    Storage.saveVehicles(vehicles);
+    showToast(`Vehículo ${brand} ${model} (Placa ${plate}) registrado con éxito.`, 'success');
   }
 
-  const newVehicle = {
-    id: `v_${Date.now()}`,
-    plate,
-    brand,
-    model,
-    vehicleType,
-    year,
-    hasInsurance,
-    policyNumber,
-    policyExpiration,
-    policyPhone,
-    unitName,
-    country,
-    rendimiento: 35,
-    tipoCombustible: 'Diésel',
-    chassisNumber: `CH-${Date.now().toString().slice(-8)}`
-  };
-
-  vehicles.push(newVehicle);
-  Storage.saveVehicles(vehicles);
-
   closeModal('modal-add-vehicle');
-  showToast(`Vehículo ${brand} ${model} (Placa ${plate}) registrado con éxito.`, 'success');
   updateAdminKPIs();
   renderAdminVehiclesTable();
   populateVehicleDropdown();
