@@ -991,14 +991,15 @@
          MODALS SYSTEM
          =================================================================== -->
     
-    <!-- MODAL: ADD PILOT (WITH LICENSE PHOTO CAPTURE FOR ADMIN) -->
+    <!-- MODAL: ADD / EDIT PILOT (WITH LICENSE PHOTO CAPTURE FOR ADMIN) -->
     <div class="modal-backdrop" id="modal-add-pilot">
       <div class="modal-container-card">
         <div class="modal-header-bar">
-          <h3>Registrar Nuevo Piloto</h3>
+          <h3 id="modal-pilot-title">Registrar Nuevo Piloto</h3>
           <button type="button" class="modal-close-icon" onclick="closeModal('modal-add-pilot')">&times;</button>
         </div>
         <form onsubmit="handleSavePilotSubmit(event)">
+          <input type="hidden" id="edit-pilot-id" value="">
           <div class="modal-body-content">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
               <div class="form-field">
@@ -1076,7 +1077,7 @@
           </div>
           <div class="modal-footer-bar">
             <button type="button" class="btn-secondary-custom" onclick="closeModal('modal-add-pilot')">Cancelar</button>
-            <button type="submit" class="btn-primary-lg" style="width: auto; padding: 10px 20px;">Guardar Piloto y Licencia</button>
+            <button type="submit" id="btn-submit-pilot" class="btn-primary-lg" style="width: auto; padding: 10px 20px;">Guardar Piloto y Licencia</button>
           </div>
         </form>
       </div>

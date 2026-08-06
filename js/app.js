@@ -1305,6 +1305,9 @@ function renderAdminPilotsTable() {
         <td><span style="font-weight: 600; color: #334155;">📍 ${p.country}</span></td>
         <td>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" class="btn-secondary-custom" onclick="editPilot('${p.id}')" style="padding: 4px 8px; font-size: 11px; font-weight: 700;" title="Editar datos del piloto">
+              ✏️ Editar
+            </button>
             <button type="button" class="btn-secondary-custom" onclick="viewPilotFullDetailsModal('${p.id}')" style="padding: 4px 8px; font-size: 11px; background: #e0f2fe; color: #0369a1; border-color: #bae6fd;" title="Ver todos los datos del piloto">
               👁️ Ficha
             </button>
@@ -1312,7 +1315,7 @@ function renderAdminPilotsTable() {
               📄 PDF
             </button>
             <button type="button" class="btn-logout-nav" onclick="deletePilot('${p.id}')" style="padding: 4px 8px; font-size: 11px;">
-              Eliminar
+              🗑️ Eliminar
             </button>
           </div>
         </td>
@@ -1790,41 +1793,131 @@ function openModalAddVehicle() {
   openModal('modal-add-vehicle'); 
 }
 
+function openModalAddPilot() {
+  const editIdInput = document.getElementById('edit-pilot-id');
+  if (editIdInput) editIdInput.value = '';
+
+  const titleEl = document.getElementById('modal-pilot-title');
+  if (titleEl) titleEl.textContent = 'Registrar Nuevo Piloto';
+
+  const btnSubmit = document.getElementById('btn-submit-pilot');
+  if (btnSubmit) btnSubmit.textContent = 'Guardar Piloto y Licencia';
+
+  document.getElementById('newp-firstname').value = '';
+  document.getElementById('newp-lastname').value = '';
+  document.getElementById('newp-phone').value = '';
+  document.getElementById('newp-age').value = '';
+  document.getElementById('newp-license').value = '';
+  document.getElementById('newp-type').value = 'C';
+  document.getElementById('newp-expdate').value = '';
+  document.getElementById('newp-country').value = 'Guatemala';
+  document.getElementById('newp-puesto').value = '';
+  adminNewPilotPhotoUrl = '';
+
+  const previewContainer = document.getElementById('newp-photo-preview-container');
+  if (previewContainer) previewContainer.style.display = 'none';
+
+  openModal('modal-add-pilot');
+}
+
+function editPilot(pilotId) {
+  const pilots = Storage.getPilots();
+  const p = pilots.find(item => item.id === pilotId);
+  if (!p) return;
+
+  const editIdInput = document.getElementById('edit-pilot-id');
+  if (editIdInput) editIdInput.value = p.id;
+
+  const titleEl = document.getElementById('modal-pilot-title');
+  if (titleEl) titleEl.textContent = 'Editar Registro de Piloto';
+
+  const btnSubmit = document.getElementById('btn-submit-pilot');
+  if (btnSubmit) btnSubmit.textContent = 'Guardar Cambios del Piloto';
+
+  document.getElementById('newp-firstname').value = p.firstName || '';
+  document.getElementById('newp-lastname').value = p.lastName || '';
+  document.getElementById('newp-phone').value = p.phone || '';
+  document.getElementById('newp-age').value = p.age || '';
+  document.getElementById('newp-license').value = p.licenseNumber || '';
+  document.getElementById('newp-type').value = p.licenseType || 'C';
+  document.getElementById('newp-expdate').value = p.expirationDate || '';
+  document.getElementById('newp-country').value = p.country || 'Guatemala';
+  document.getElementById('newp-puesto').value = p.puesto || '';
+
+  adminNewPilotPhotoUrl = p.licensePhoto || '';
+  const previewContainer = document.getElementById('newp-photo-preview-container');
+  const previewImg = document.getElementById('newp-photo-preview-img');
+  if (adminNewPilotPhotoUrl && previewContainer && previewImg) {
+    previewImg.src = adminNewPilotPhotoUrl;
+    previewContainer.style.display = 'block';
+  } else if (previewContainer) {
+    previewContainer.style.display = 'none';
+  }
+
+  openModal('modal-add-pilot');
+}
+
 function openModalAddPresetRoute() { openModal('modal-add-preset-route'); }
 function openModalAddMotivo() { openModal('modal-add-motivo'); }
 
 function handleSavePilotSubmit(e) {
   e.preventDefault();
-  const firstName = document.getElementById('newp-firstname').value;
-  const lastName = document.getElementById('newp-lastname').value;
-  const phone = document.getElementById('newp-phone').value;
-  const age = document.getElementById('newp-age').value;
-  const licenseNumber = document.getElementById('newp-license').value;
+  const editId = document.getElementById('edit-pilot-id')?.value;
+  const firstName = document.getElementById('newp-firstname').value.trim();
+  const lastName = document.getElementById('newp-lastname').value.trim();
+  const phone = document.getElementById('newp-phone').value.trim();
+  const age = document.getElementById('newp-age').value.trim();
+  const licenseNumber = document.getElementById('newp-license').value.trim();
   const licenseType = document.getElementById('newp-type').value;
   const expirationDate = document.getElementById('newp-expdate').value;
-  const puesto = document.getElementById('newp-puesto').value;
+  const puesto = document.getElementById('newp-puesto').value.trim();
   const country = document.getElementById('newp-country').value;
 
-  const newPilot = {
-    id: `p_${Date.now()}`,
-    firstName,
-    lastName,
-    phone,
-    age,
-    licenseNumber,
-    licenseType,
-    expirationDate,
-    puesto,
-    country,
-    licensePhoto: adminNewPilotPhotoUrl
-  };
+  let pilots = Storage.getPilots();
 
-  const pilots = Storage.getPilots();
-  pilots.push(newPilot);
-  Storage.savePilots(pilots);
+  if (editId) {
+    // EDIT EXISTING PILOT
+    const index = pilots.findIndex(p => p.id === editId);
+    if (index !== -1) {
+      pilots[index] = {
+        ...pilots[index],
+        firstName,
+        lastName,
+        phone,
+        age,
+        licenseNumber,
+        licenseType,
+        expirationDate,
+        puesto,
+        country,
+        licensePhoto: adminNewPilotPhotoUrl || pilots[index].licensePhoto
+      };
+
+      Storage.savePilots(pilots);
+      showToast(`Piloto ${firstName} ${lastName} actualizado con éxito.`, 'success');
+    }
+  } else {
+    // CREATE NEW PILOT
+    const newPilot = {
+      id: `p_${Date.now()}`,
+      firstName,
+      lastName,
+      phone,
+      age,
+      licenseNumber,
+      licenseType,
+      expirationDate,
+      puesto,
+      country,
+      licensePhoto: adminNewPilotPhotoUrl
+    };
+
+    pilots.push(newPilot);
+    Storage.savePilots(pilots);
+    showToast(`Piloto ${firstName} ${lastName} registrado con éxito.`, 'success');
+  }
 
   closeModal('modal-add-pilot');
-  showToast(`Piloto ${firstName} ${lastName} registrado con teléfono ${phone}.`, 'success');
   updateAdminKPIs();
   renderAdminPilotsTable();
   populatePilotDropdown();
