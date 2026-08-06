@@ -475,13 +475,14 @@ function populateVehicleDropdown(pilotObj) {
   select.innerHTML = allowedVehicles.map(v => {
     const hasInsurance = v.hasInsurance === 'Sí';
     const isInsExpired = hasInsurance && v.policyExpiration && (new Date(v.policyExpiration) < today);
+    const isInsActive = hasInsurance && !isInsExpired;
 
-    if (isInsExpired) {
-      return `<option value="${v.id}" disabled style="color: #94a3b8; background: #f8fafc; font-weight: 500;">${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType}) — 🚫 SEGURO VENCIDO (NO SE PUEDE ESCOGER)</option>`;
+    if (!isInsActive) {
+      const reasonLabel = !hasInsurance ? 'SIN SEGURO REGISTRADO' : 'SEGURO VENCIDO';
+      return `<option value="${v.id}" disabled style="color: #94a3b8; background: #f8fafc; font-weight: 500;">🔒 ${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType}) — 🚫 [BLOQUEADO: ${reasonLabel}]</option>`;
     } else {
       if (!firstValidId) firstValidId = v.id;
-      const statusLabel = hasInsurance ? '— ✓ SEGURO VIGENTE' : '';
-      return `<option value="${v.id}">${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType}) ${statusLabel}</option>`;
+      return `<option value="${v.id}">${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType}) — ✓ SEGURO VIGENTE / HABILITADO</option>`;
     }
   }).join('');
 
@@ -514,15 +515,17 @@ function handleVehicleChange() {
     if (badgeType) badgeType.textContent = v.vehicleType || '—';
     if (badgeYear) badgeYear.textContent = v.year || '—';
 
-    const isInsExpired = v.hasInsurance === 'Sí' && v.policyExpiration && (new Date(v.policyExpiration) < today);
+    const hasInsurance = v.hasInsurance === 'Sí';
+    const isInsExpired = hasInsurance && v.policyExpiration && (new Date(v.policyExpiration) < today);
+    const isInsActive = hasInsurance && !isInsExpired;
 
     if (badgeIns) {
-      if (isInsExpired) {
-        badgeIns.innerHTML = `<span style="color:#b91c1c; font-weight:800; background:#fef2f2; padding:3px 8px; border-radius:4px; border:1px solid #fecaca;">🚫 SEGURO VENCIDO (${v.policyExpiration})</span>`;
-      } else if (v.hasInsurance === 'Sí') {
-        badgeIns.innerHTML = `<span style="color:#047857; font-weight:800; background:#ecfdf5; padding:3px 8px; border-radius:4px; border:1px solid #a7f3d0;">✓ Sí (Pol: ${v.policyNumber || 'Vigente'})</span>`;
+      if (!hasInsurance) {
+        badgeIns.innerHTML = `<span style="color:#b91c1c; font-weight:800; background:#fef2f2; padding:3px 8px; border-radius:4px; border:1px solid #fecaca;">🔒 BLOQUEADO (SIN SEGURO)</span>`;
+      } else if (isInsExpired) {
+        badgeIns.innerHTML = `<span style="color:#b91c1c; font-weight:800; background:#fef2f2; padding:3px 8px; border-radius:4px; border:1px solid #fecaca;">🔒 BLOQUEADO (SEGURO VENCIDO: ${v.policyExpiration})</span>`;
       } else {
-        badgeIns.innerHTML = `<span style="color:#64748b; font-weight:800; background:#f1f5f9; padding:3px 8px; border-radius:4px;">✕ No tiene seguro</span>`;
+        badgeIns.innerHTML = `<span style="color:#047857; font-weight:800; background:#ecfdf5; padding:3px 8px; border-radius:4px; border:1px solid #a7f3d0;">✓ HABILITADO (Pol: ${v.policyNumber || 'Vigente'})</span>`;
       }
     }
   }
