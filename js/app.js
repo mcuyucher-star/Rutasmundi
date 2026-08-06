@@ -92,11 +92,20 @@ function populatePilotSelectInLogin() {
   const select = document.getElementById('login-pilot-id');
   if (!select) return;
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   select.innerHTML = pilots.map(p => {
     const firstName = (p.firstName || '').trim().split(/\s+/)[0] || '';
     const lastName = (p.lastName || '').trim().split(/\s+/)[0] || '';
     const displayName = `${firstName} ${lastName}`.trim() || 'Piloto';
-    return `<option value="${p.id}">${displayName}</option>`;
+
+    const pExp = p.expirationDate ? (new Date(p.expirationDate) < today) : false;
+    const sExp = p.hasSecondLicense ? (p.expirationDate2 ? (new Date(p.expirationDate2) < today) : true) : true;
+    const isExpired = pExp && sExp;
+
+    const labelExtra = isExpired ? ' ⚠️ (Licencia Vencida)' : '';
+    return `<option value="${p.id}">${displayName}${labelExtra}</option>`;
   }).join('');
 }
 
@@ -110,13 +119,13 @@ function switchLoginRole(role) {
   if (role === 'pilot') {
     tabPilot.classList.add('active');
     tabAdmin.classList.remove('active');
-    groupPilot.style.display = 'flex';
+    groupPilot.style.display = 'block';
     groupAdmin.style.display = 'none';
   } else {
     tabAdmin.classList.add('active');
     tabPilot.classList.remove('active');
+    groupAdmin.style.display = 'block';
     groupPilot.style.display = 'none';
-    groupAdmin.style.display = 'flex';
   }
 }
 
@@ -161,6 +170,20 @@ function handleLoginSubmit(e) {
       showToast('Seleccione un piloto válido', 'error');
       return;
     }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const primaryExpired = pilot.expirationDate ? (new Date(pilot.expirationDate) < today) : false;
+    const secondaryExpired = pilot.hasSecondLicense ? (pilot.expirationDate2 ? (new Date(pilot.expirationDate2) < today) : true) : true;
+
+    if (primaryExpired && secondaryExpired) {
+      const msg = 'Licencia Vencida, por favor informar a jefe para su renovacion';
+      showToast(msg, 'error');
+      alert(`⚠️ ACCESO RESTRINGIDO:\n\n${msg}`);
+      return;
+    }
+
     const sessionData = {
       isLoggedIn: true,
       role: 'pilot',
@@ -411,13 +434,12 @@ function populateVehicleDropdown(pilotObj) {
   }
 
   const vehicles = Storage.getVehicles();
-  const licenseType = pilot ? pilot.licenseType : 'C';
 
-  // Filter vehicles according to license restriction
-  const allowedVehicles = vehicles.filter(v => isVehicleAllowedForLicense(v.vehicleType, licenseType));
+  // Filter vehicles according to license restriction (considering secondary license)
+  const allowedVehicles = vehicles.filter(v => isVehicleAllowedForPilot(v.vehicleType, pilot));
 
   if (allowedVehicles.length === 0) {
-    select.innerHTML = `<option value="">⚠️ No hay vehículos livianos compatibles disponibles para Licencia Tipo ${licenseType}</option>`;
+    select.innerHTML = `<option value="">⚠️ No hay vehículos compatibles disponibles para su tipo de licencia</option>`;
     const badgePlate = document.getElementById('vbadge-plate');
     const badgeModel = document.getElementById('vbadge-model');
     const badgeType = document.getElementById('vbadge-type');
@@ -431,9 +453,28 @@ function populateVehicleDropdown(pilotObj) {
     return;
   }
 
-  select.innerHTML = allowedVehicles.map(v => `
-    <option value="${v.id}">${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType})</option>
-  `).join('');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let firstValidId = null;
+
+  select.innerHTML = allowedVehicles.map(v => {
+    const hasInsurance = v.hasInsurance === 'Sí';
+    const isInsExpired = hasInsurance && v.policyExpiration && (new Date(v.policyExpiration) < today);
+
+    if (isInsExpired) {
+      return `<option value="${v.id}" disabled style="color: #94a3b8; background: #f8fafc;">${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType}) — 🚫 SEGURO VENCIDO (NO DISPONIBLE)</option>`;
+    } else {
+      if (!firstValidId) firstValidId = v.id;
+      return `<option value="${v.id}">${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType})</option>`;
+    }
+  }).join('');
+
+  if (firstValidId) {
+    select.value = firstValidId;
+  } else if (allowedVehicles.length > 0) {
+    select.value = allowedVehicles[0].id;
+  }
 
   handleVehicleChange();
 }
@@ -449,16 +490,24 @@ function handleVehicleChange() {
   const badgeYear = document.getElementById('vbadge-year');
   const badgeIns = document.getElementById('vbadge-insurance');
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   if (v) {
     if (badgePlate) badgePlate.textContent = v.plate;
     if (badgeModel) badgeModel.textContent = `${v.brand || ''} ${v.model || ''}`.trim() || '—';
     if (badgeType) badgeType.textContent = v.vehicleType || '—';
     if (badgeYear) badgeYear.textContent = v.year || '—';
+
+    const isInsExpired = v.hasInsurance === 'Sí' && v.policyExpiration && (new Date(v.policyExpiration) < today);
+
     if (badgeIns) {
-      if (v.hasInsurance === 'Sí') {
-        badgeIns.innerHTML = `<span style="color:#047857; font-weight:800;">✓ Sí (Pol: ${v.policyNumber || 'Vigente'})</span>`;
+      if (isInsExpired) {
+        badgeIns.innerHTML = `<span style="color:#b91c1c; font-weight:800; background:#fef2f2; padding:3px 8px; border-radius:4px; border:1px solid #fecaca;">🚫 SEGURO VENCIDO (${v.policyExpiration})</span>`;
+      } else if (v.hasInsurance === 'Sí') {
+        badgeIns.innerHTML = `<span style="color:#047857; font-weight:800; background:#ecfdf5; padding:3px 8px; border-radius:4px; border:1px solid #a7f3d0;">✓ Sí (Pol: ${v.policyNumber || 'Vigente'})</span>`;
       } else {
-        badgeIns.innerHTML = `<span style="color:#b91c1c; font-weight:800;">✕ No</span>`;
+        badgeIns.innerHTML = `<span style="color:#64748b; font-weight:800; background:#f1f5f9; padding:3px 8px; border-radius:4px;">✕ No tiene seguro</span>`;
       }
     }
   }
@@ -611,6 +660,15 @@ function handleStartRouteSubmit(e) {
   const vehicles = Storage.getVehicles();
   const pilot = pilots.find(p => p.id === pilotId);
   const vehicle = vehicles.find(v => v.id === vehicleId);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (vehicle && vehicle.hasInsurance === 'Sí' && vehicle.policyExpiration && (new Date(vehicle.policyExpiration) < today)) {
+    showToast('Este vehículo tiene el seguro vencido. No se puede seleccionar ni utilizar para rutas.', 'error');
+    alert('⚠️ VEHÍCULO NO DISPONIBLE:\n\nEste vehículo cuenta con seguro pero se encuentra VENCIDO. Por favor seleccione un vehículo con seguro vigente.');
+    return;
+  }
 
   const hasDefects = document.getElementById('chk-has-defects').checked;
 
