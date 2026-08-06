@@ -104,14 +104,7 @@
             </button>
           </form>
 
-          <!-- Quick Access Demo -->
-          <div class="quick-demo-wrapper">
-            <p class="demo-title-text">Acceso Directo de Prueba</p>
-            <div class="demo-buttons-grid">
-              <button type="button" class="btn-demo-pill" onclick="quickLogin('pilot')">⚡ Entrar como Piloto</button>
-              <button type="button" class="btn-demo-pill" onclick="quickLogin('admin')">⚡ Entrar como Admin</button>
-            </div>
-          </div>
+
         </div>
       </section>
 
@@ -217,12 +210,19 @@
 
           <form id="form-inspection" onsubmit="handleStartRouteSubmit(event)" style="display: flex; flex-direction: column; gap: 24px;">
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+            <div style="display: grid; grid-template-columns: 2fr 85px 2.5fr 1.3fr 1.1fr; gap: 12px; align-items: flex-end; width: 100%;">
               <div class="form-field">
                 <label class="form-label-custom">Piloto Asignado</label>
-                <select class="form-select-custom" id="insp-pilot-id" required>
+                <select class="form-select-custom" id="insp-pilot-id" required onchange="handlePilotChange()">
                   <!-- Dynamically filled -->
                 </select>
+              </div>
+
+              <div class="form-field">
+                <label class="form-label-custom">País</label>
+                <div id="insp-pilot-country-box" class="form-input-custom" style="background: #f8fafc; font-weight: 800; display: flex; align-items: center; justify-content: center; height: 42px; padding: 0 4px;">
+                  <span class="country-acronym-badge" style="background:#2563eb; color:#fff; font-weight:800; padding:2px 8px; border-radius:4px;">GTM</span>
+                </div>
               </div>
 
               <div class="form-field">
@@ -233,61 +233,61 @@
               </div>
 
               <div class="form-field">
-                <label class="form-label-custom">Fecha de Salida</label>
+                <label class="form-label-custom">F. Salida</label>
                 <input type="date" class="form-input-custom" id="insp-date" required>
               </div>
 
               <div class="form-field">
-                <label class="form-label-custom">Hora de Inicio</label>
+                <label class="form-label-custom">Hora de Salida</label>
                 <input type="text" class="form-input-custom" id="insp-start-time" readonly style="background: #f8fafc; font-weight: 700;">
               </div>
             </div>
 
             <!-- Vehicle Specs Badge -->
-            <div id="vehicle-specs-badge" style="background: var(--bg-app); padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-light); display: flex; gap: 20px; font-size: 13px; flex-wrap: wrap;">
+            <div id="vehicle-specs-badge" style="background: var(--bg-app); padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-light); display: flex; gap: 20px; font-size: 13px; flex-wrap: wrap; align-items: center;">
               <div><strong>Placa:</strong> <span id="vbadge-plate">—</span></div>
-              <div><strong>Unidad:</strong> <span id="vbadge-unit">—</span></div>
+              <div><strong>Marca / Modelo:</strong> <span id="vbadge-model">—</span></div>
               <div><strong>Tipo:</strong> <span id="vbadge-type">—</span></div>
-              <div><strong>Modelo:</strong> <span id="vbadge-model">—</span></div>
-              <div><strong>Chasis:</strong> <span id="vbadge-chassis">—</span></div>
+              <div><strong>Año:</strong> <span id="vbadge-year">—</span></div>
+              <div><strong>Seguro:</strong> <span id="vbadge-insurance">—</span></div>
             </div>
 
             <!-- Cleanliness, Fuel & Odometer -->
             <div style="border-top: 1px solid var(--border-light); padding-top: 18px; display: flex; flex-direction: column; gap: 16px;">
               <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;">1. Limpieza, Combustible & Odómetro</span>
 
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1.8fr 1.4fr; gap: 14px; align-items: flex-end; width: 100%;">
                 <div class="form-field">
                   <label class="form-label-custom">Limpieza Interior</label>
                   <div class="quality-selector-grid" id="qs-interior">
-                    <div class="quality-pill-item bueno active" onclick="setQuality('interior', 'Bueno')">Bueno</div>
-                    <div class="quality-pill-item regular" onclick="setQuality('interior', 'Regular')">Regular</div>
-                    <div class="quality-pill-item malo" onclick="setQuality('interior', 'Malo')">Malo</div>
+                    <div class="quality-pill-item bueno active" onclick="setQuality('interior', 'Bueno', this)">B</div>
+                    <div class="quality-pill-item regular" onclick="setQuality('interior', 'Regular', this)">R</div>
+                    <div class="quality-pill-item malo" onclick="setQuality('interior', 'Malo', this)">M</div>
                   </div>
                 </div>
 
                 <div class="form-field">
                   <label class="form-label-custom">Limpieza Exterior</label>
                   <div class="quality-selector-grid" id="qs-exterior">
-                    <div class="quality-pill-item bueno active" onclick="setQuality('exterior', 'Bueno')">Bueno</div>
-                    <div class="quality-pill-item regular" onclick="setQuality('exterior', 'Regular')">Regular</div>
-                    <div class="quality-pill-item malo" onclick="setQuality('exterior', 'Malo')">Malo</div>
+                    <div class="quality-pill-item bueno active" onclick="setQuality('exterior', 'Bueno', this)">B</div>
+                    <div class="quality-pill-item regular" onclick="setQuality('exterior', 'Regular', this)">R</div>
+                    <div class="quality-pill-item malo" onclick="setQuality('exterior', 'Malo', this)">M</div>
                   </div>
                 </div>
 
                 <!-- FUEL LEVEL PILLS -->
-                <div class="form-field" style="grid-column: span 2;">
+                <div class="form-field">
                   <label class="form-label-custom">Nivel de Combustible</label>
                   <div class="quality-selector-grid" id="qs-fuel">
-                    <div class="quality-pill-item bueno active" onclick="setQuality('fuel', 'Lleno')">Lleno (100%)</div>
-                    <div class="quality-pill-item bueno" onclick="setQuality('fuel', '3/4')">3/4 de Tanque</div>
-                    <div class="quality-pill-item regular" onclick="setQuality('fuel', '1/2')">1/2 Tanque</div>
-                    <div class="quality-pill-item regular" onclick="setQuality('fuel', '1/4')">1/4 de Tanque</div>
-                    <div class="quality-pill-item malo" onclick="setQuality('fuel', 'Reserva')">Reserva</div>
+                    <div class="quality-pill-item bueno active" onclick="setQuality('fuel', 'Lleno', this)">F</div>
+                    <div class="quality-pill-item bueno" onclick="setQuality('fuel', '3/4', this)">3/4</div>
+                    <div class="quality-pill-item regular" onclick="setQuality('fuel', '1/2', this)">1/2</div>
+                    <div class="quality-pill-item regular" onclick="setQuality('fuel', '1/4', this)">1/4</div>
+                    <div class="quality-pill-item malo" onclick="setQuality('fuel', 'Reserva', this)">V</div>
                   </div>
                 </div>
 
-                <div class="form-field" style="grid-column: span 2;">
+                <div class="form-field">
                   <label class="form-label-custom">Lectura de Odómetro (KM)</label>
                   <input type="text" class="form-input-custom" id="insp-odometer" placeholder="Ej. 125,430 km" required>
                 </div>
@@ -299,43 +299,84 @@
               <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;">2. Inspección de Carrocería & Defectos Mecánicos</span>
 
               <!-- MAIN CONDITIONAL QUESTION -->
-              <div class="switch-row" style="margin-top: 12px; background: var(--bg-app); padding: 14px 18px; border-radius: var(--radius-md); border: 1.5px solid var(--border-light);">
-                <span class="switch-label-text" style="font-weight: 800; font-size: 14px; color: var(--dark-slate);">¿El vehículo tiene algún daño o defecto mecánico?</span>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                  <span id="label-has-defects" style="font-size: 12px; font-weight: 800; color: var(--text-muted);">No</span>
-                  <label class="ios-switch">
+              <label class="defect-switch-card-main" style="display: flex; align-items: center; justify-content: space-between; margin-top: 12px; background: #ffffff; padding: 14px 18px; border-radius: var(--radius-md); border: 2px solid var(--border-light); cursor: pointer; transition: all 0.2s ease;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
                     <input type="checkbox" id="chk-has-defects" onchange="toggleDefectsSubOptions(this.checked)">
                     <span class="ios-slider"></span>
-                  </label>
+                  </div>
+                  <span class="switch-label-text" style="font-weight: 800; font-size: 14px; color: var(--dark-slate);">¿El vehículo tiene algún daño o defecto mecánico?</span>
                 </div>
-              </div>
+                <span id="label-has-defects" style="font-size: 12px; font-weight: 800; color: #64748b; background: #f1f5f9; padding: 4px 10px; border-radius: 6px;">No (Sin Daños)</span>
+              </label>
 
               <!-- SUB-OPTIONS CONTAINER (HIDDEN UNTIL SWITCH IS TURNED YES/ON) -->
-              <div id="defects-suboptions-container" style="display: none; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 14px; padding: 16px; background: var(--bg-app); border-radius: var(--radius-md); border-left: 4px solid var(--rose);">
-                <div class="switch-row">
-                  <span class="switch-label-text">Daño en Carrocería / Golpes</span>
-                  <label class="ios-switch"><input type="checkbox" id="chk-dmg-carroceria"><span class="ios-slider"></span></label>
-                </div>
-                <div class="switch-row">
-                  <span class="switch-label-text">Vidrios / Parabrisas Rajado</span>
-                  <label class="ios-switch"><input type="checkbox" id="chk-dmg-vidrios"><span class="ios-slider"></span></label>
-                </div>
-                <div class="switch-row">
-                  <span class="switch-label-text">Llantas Desgastadas / Ponchadas</span>
-                  <label class="ios-switch"><input type="checkbox" id="chk-dmg-llantas"><span class="ios-slider"></span></label>
-                </div>
-                <div class="switch-row">
-                  <span class="switch-label-text">Espejos Retrovisores Rotos</span>
-                  <label class="ios-switch"><input type="checkbox" id="chk-dmg-espejos"><span class="ios-slider"></span></label>
-                </div>
-                <div class="switch-row">
-                  <span class="switch-label-text">Falla en Sistema de Alarma</span>
-                  <label class="ios-switch"><input type="checkbox" id="chk-alarm"><span class="ios-slider"></span></label>
-                </div>
-                <div class="switch-row">
-                  <span class="switch-label-text">Tablero / Indicadores con Falla</span>
-                  <label class="ios-switch"><input type="checkbox" id="chk-def-tablero"><span class="ios-slider"></span></label>
-                </div>
+              <div id="defects-suboptions-container" style="display: none; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 14px; padding: 16px; background: var(--bg-app); border-radius: var(--radius-md); border-left: 4px solid var(--rose);">
+                <label class="defect-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ffffff; border: 1.5px solid var(--border-light); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="chk-dmg-carroceria" onchange="updateSwitchCardState(this, 'lbl-dmg-carroceria')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Daño en Carrocería / Golpes</span>
+                  </div>
+                  <span id="lbl-dmg-carroceria" style="font-size: 11px; font-weight: 800; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">No</span>
+                </label>
+
+                <label class="defect-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ffffff; border: 1.5px solid var(--border-light); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="chk-dmg-vidrios" onchange="updateSwitchCardState(this, 'lbl-dmg-vidrios')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Vidrios / Parabrisas Rajado</span>
+                  </div>
+                  <span id="lbl-dmg-vidrios" style="font-size: 11px; font-weight: 800; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">No</span>
+                </label>
+
+                <label class="defect-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ffffff; border: 1.5px solid var(--border-light); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="chk-dmg-llantas" onchange="updateSwitchCardState(this, 'lbl-dmg-llantas')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Llantas Desgastadas / Ponchadas</span>
+                  </div>
+                  <span id="lbl-dmg-llantas" style="font-size: 11px; font-weight: 800; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">No</span>
+                </label>
+
+                <label class="defect-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ffffff; border: 1.5px solid var(--border-light); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="chk-dmg-espejos" onchange="updateSwitchCardState(this, 'lbl-dmg-espejos')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Espejos Retrovisores Rotos</span>
+                  </div>
+                  <span id="lbl-dmg-espejos" style="font-size: 11px; font-weight: 800; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">No</span>
+                </label>
+
+                <label class="defect-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ffffff; border: 1.5px solid var(--border-light); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="chk-alarm" onchange="updateSwitchCardState(this, 'lbl-alarm')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Falla en Sistema de Alarma</span>
+                  </div>
+                  <span id="lbl-alarm" style="font-size: 11px; font-weight: 800; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">No</span>
+                </label>
+
+                <label class="defect-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ffffff; border: 1.5px solid var(--border-light); border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="chk-def-tablero" onchange="updateSwitchCardState(this, 'lbl-def-tablero')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Tablero / Indicadores con Falla</span>
+                  </div>
+                  <span id="lbl-def-tablero" style="font-size: 11px; font-weight: 800; color: #64748b; background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">No</span>
+                </label>
 
                 <!-- Photografic Evidence for Defects -->
                 <div style="grid-column: 1 / -1; margin-top: 8px; border-top: 1px dashed var(--border-light); padding-top: 12px;">
@@ -352,14 +393,14 @@
             <div style="border-top: 1px solid var(--border-light); padding-top: 18px;">
               <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;">3. Niveles de Fluidos</span>
 
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-top: 12px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-top: 12px;">
                 <!-- Aceite de Motor -->
                 <div class="form-field">
                   <label class="form-label-custom">Aceite de Motor</label>
                   <div class="quality-selector-grid" id="qs-fluid-aceite">
-                    <div class="quality-pill-item bueno active" onclick="setQuality('fluid-aceite', 'Correcto')">Correcto</div>
-                    <div class="quality-pill-item regular" onclick="setQuality('fluid-aceite', 'Bajo')">Bajo</div>
-                    <div class="quality-pill-item malo" onclick="setQuality('fluid-aceite', 'Crítico')">Crítico</div>
+                    <div class="quality-pill-item bueno active" onclick="setQuality('fluid-aceite', 'Correcto', this)">F</div>
+                    <div class="quality-pill-item regular" onclick="setQuality('fluid-aceite', 'Bajo', this)">B</div>
+                    <div class="quality-pill-item malo" onclick="setQuality('fluid-aceite', 'Crítico', this)">C</div>
                   </div>
                 </div>
 
@@ -367,9 +408,9 @@
                 <div class="form-field">
                   <label class="form-label-custom">Agua / Radiador</label>
                   <div class="quality-selector-grid" id="qs-fluid-radiador">
-                    <div class="quality-pill-item bueno active" onclick="setQuality('fluid-radiador', 'Correcto')">Correcto</div>
-                    <div class="quality-pill-item regular" onclick="setQuality('fluid-radiador', 'Bajo')">Bajo</div>
-                    <div class="quality-pill-item malo" onclick="setQuality('fluid-radiador', 'Crítico')">Crítico</div>
+                    <div class="quality-pill-item bueno active" onclick="setQuality('fluid-radiador', 'Correcto', this)">F</div>
+                    <div class="quality-pill-item regular" onclick="setQuality('fluid-radiador', 'Bajo', this)">B</div>
+                    <div class="quality-pill-item malo" onclick="setQuality('fluid-radiador', 'Crítico', this)">C</div>
                   </div>
                 </div>
 
@@ -377,9 +418,9 @@
                 <div class="form-field">
                   <label class="form-label-custom">Líquido de Frenos</label>
                   <div class="quality-selector-grid" id="qs-fluid-frenos">
-                    <div class="quality-pill-item bueno active" onclick="setQuality('fluid-frenos', 'Correcto')">Correcto</div>
-                    <div class="quality-pill-item regular" onclick="setQuality('fluid-frenos', 'Bajo')">Bajo</div>
-                    <div class="quality-pill-item malo" onclick="setQuality('fluid-frenos', 'Crítico')">Crítico</div>
+                    <div class="quality-pill-item bueno active" onclick="setQuality('fluid-frenos', 'Correcto', this)">F</div>
+                    <div class="quality-pill-item regular" onclick="setQuality('fluid-frenos', 'Bajo', this)">B</div>
+                    <div class="quality-pill-item malo" onclick="setQuality('fluid-frenos', 'Crítico', this)">C</div>
                   </div>
                 </div>
 
@@ -387,9 +428,9 @@
                 <div class="form-field">
                   <label class="form-label-custom">Líquido Hidráulico</label>
                   <div class="quality-selector-grid" id="qs-fluid-hidraulico">
-                    <div class="quality-pill-item bueno active" onclick="setQuality('fluid-hidraulico', 'Correcto')">Correcto</div>
-                    <div class="quality-pill-item regular" onclick="setQuality('fluid-hidraulico', 'Bajo')">Bajo</div>
-                    <div class="quality-pill-item malo" onclick="setQuality('fluid-hidraulico', 'Crítico')">Crítico</div>
+                    <div class="quality-pill-item bueno active" onclick="setQuality('fluid-hidraulico', 'Correcto', this)">F</div>
+                    <div class="quality-pill-item regular" onclick="setQuality('fluid-hidraulico', 'Bajo', this)">B</div>
+                    <div class="quality-pill-item malo" onclick="setQuality('fluid-hidraulico', 'Crítico', this)">C</div>
                   </div>
                 </div>
               </div>
@@ -399,31 +440,72 @@
             <div style="border-top: 1px solid var(--border-light); padding-top: 18px;">
               <span style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em;">4. Kit de Emergencia & Documentos Obligatorios</span>
 
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 12px;">
-                <div class="switch-row">
-                  <span class="switch-label-text">Llanta de Repuesto Operativa</span>
-                  <label class="ios-switch"><input type="checkbox" id="kit-llanta" checked><span class="ios-slider"></span></label>
-                </div>
-                <div class="switch-row">
-                  <span class="switch-label-text">Triquet / Gato Hidráulico</span>
-                  <label class="ios-switch"><input type="checkbox" id="kit-gato" checked><span class="ios-slider"></span></label>
-                </div>
-                <div class="switch-row">
-                  <span class="switch-label-text">Triángulos de Señalización</span>
-                  <label class="ios-switch"><input type="checkbox" id="kit-triangulo" checked><span class="ios-slider"></span></label>
-                </div>
-                <div class="switch-row">
-                  <span class="switch-label-text">Extintor Recargado</span>
-                  <label class="ios-switch"><input type="checkbox" id="kit-extintor" checked><span class="ios-slider"></span></label>
-                </div>
-                <div class="switch-row">
-                  <span class="switch-label-text">Tarjeta de Circulación Vigente</span>
-                  <label class="ios-switch"><input type="checkbox" id="doc-tarjeta" checked><span class="ios-slider"></span></label>
-                </div>
-                <div class="switch-row">
-                  <span class="switch-label-text">Licencia de Conducir Vigente</span>
-                  <label class="ios-switch"><input type="checkbox" id="doc-licencia" checked><span class="ios-slider"></span></label>
-                </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 12px;">
+                <label class="kit-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="kit-llanta" checked onchange="updateKitCardState(this, 'lbl-kit-llanta')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Llanta de Repuesto Operativa</span>
+                  </div>
+                  <span id="lbl-kit-llanta" style="font-size: 11px; font-weight: 800; color: #047857; background: #d1fae5; padding: 2px 8px; border-radius: 4px;">Sí</span>
+                </label>
+
+                <label class="kit-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="kit-gato" checked onchange="updateKitCardState(this, 'lbl-kit-gato')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Triquet / Gato Hidráulico</span>
+                  </div>
+                  <span id="lbl-kit-gato" style="font-size: 11px; font-weight: 800; color: #047857; background: #d1fae5; padding: 2px 8px; border-radius: 4px;">Sí</span>
+                </label>
+
+                <label class="kit-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="kit-triangulo" checked onchange="updateKitCardState(this, 'lbl-kit-triangulo')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Triángulos de Señalización</span>
+                  </div>
+                  <span id="lbl-kit-triangulo" style="font-size: 11px; font-weight: 800; color: #047857; background: #d1fae5; padding: 2px 8px; border-radius: 4px;">Sí</span>
+                </label>
+
+                <label class="kit-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="kit-extintor" checked onchange="updateKitCardState(this, 'lbl-kit-extintor')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Extintor Recargado</span>
+                  </div>
+                  <span id="lbl-kit-extintor" style="font-size: 11px; font-weight: 800; color: #047857; background: #d1fae5; padding: 2px 8px; border-radius: 4px;">Sí</span>
+                </label>
+
+                <label class="kit-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="doc-tarjeta" checked onchange="updateKitCardState(this, 'lbl-doc-tarjeta')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Tarjeta de Circulación Vigente</span>
+                  </div>
+                  <span id="lbl-doc-tarjeta" style="font-size: 11px; font-weight: 800; color: #047857; background: #d1fae5; padding: 2px 8px; border-radius: 4px;">Sí</span>
+                </label>
+
+                <label class="kit-switch-card" style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ecfdf5; border: 1.5px solid #10b981; border-radius: var(--radius-md); cursor: pointer; transition: all 0.2s ease;">
+                  <div style="display: flex; align-items: center; gap: 10px;">
+                    <div class="ios-switch" style="margin: 0; flex-shrink: 0;">
+                      <input type="checkbox" id="doc-licencia" checked onchange="updateKitCardState(this, 'lbl-doc-licencia')">
+                      <span class="ios-slider"></span>
+                    </div>
+                    <span class="switch-label-text" style="font-weight: 700; font-size: 13px; color: var(--dark-slate);">Licencia de Conducir Vigente</span>
+                  </div>
+                  <span id="lbl-doc-licencia" style="font-size: 11px; font-weight: 800; color: #047857; background: #d1fae5; padding: 2px 8px; border-radius: 4px;">Sí</span>
+                </label>
               </div>
             </div>
 
@@ -745,13 +827,14 @@
             <table class="saas-table">
               <thead>
                 <tr>
-                  <th>Piloto</th>
-                  <th>Edad / Puesto</th>
+                  <th>Piloto / Nombre</th>
+                  <th>Teléfono</th>
+                  <th>Puesto / Edad</th>
                   <th>No. Licencia</th>
                   <th>Tipo</th>
                   <th>Vencimiento</th>
                   <th>Foto Licencia</th>
-                  <th>Estado Licencia</th>
+                  <th>Estado</th>
                   <th>País</th>
                   <th>Acciones</th>
                 </tr>
@@ -766,7 +849,7 @@
         <!-- TAB 2: VEHICLES MANAGEMENT -->
         <div id="admin-tab-content-vehicles" class="card-enterprise" style="display: none;">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
-            <input type="text" class="form-input-custom" id="search-vehicles" placeholder="🔍 Buscar por placa, unidad o modelo..." style="max-width: 340px;" oninput="renderAdminVehiclesTable()">
+            <input type="text" class="form-input-custom" id="search-vehicles" placeholder="🔍 Buscar por placa, marca, modelo, póliza..." style="max-width: 340px;" oninput="renderAdminVehiclesTable()">
             <button type="button" class="btn-primary-lg" onclick="openModalAddVehicle()" style="width: auto; padding: 10px 18px; font-size: 13px;">
               <i data-lucide="plus-square" style="width: 16px; height: 16px;"></i> Registrar Vehículo
             </button>
@@ -777,11 +860,14 @@
               <thead>
                 <tr>
                   <th>Placa</th>
-                  <th>Nombre Unidad</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
                   <th>Tipo</th>
-                  <th>Marca / Modelo</th>
-                  <th>Rendimiento (KM/Gal)</th>
-                  <th>Combustible</th>
+                  <th>Año</th>
+                  <th>Seguro</th>
+                  <th>No. Póliza</th>
+                  <th>F. Vencimiento</th>
+                  <th>Tel. Póliza</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -927,16 +1013,20 @@
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
               <div class="form-field">
-                <label class="form-label-custom">Edad</label>
-                <input type="number" class="form-input-custom" id="newp-age" min="18" max="75" required placeholder="30">
+                <label class="form-label-custom">Tel. (Número de Teléfono)</label>
+                <input type="tel" class="form-input-custom" id="newp-phone" required placeholder="Ej. +502 5555-1234">
               </div>
               <div class="form-field">
-                <label class="form-label-custom">No. Licencia</label>
-                <input type="text" class="form-input-custom" id="newp-license" required placeholder="GTM-99887">
+                <label class="form-label-custom">Edad</label>
+                <input type="number" class="form-input-custom" id="newp-age" min="18" max="75" required placeholder="30">
               </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+              <div class="form-field">
+                <label class="form-label-custom">No. Licencia</label>
+                <input type="text" class="form-input-custom" id="newp-license" required placeholder="GTM-99887">
+              </div>
               <div class="form-field">
                 <label class="form-label-custom">Tipo de Licencia</label>
                 <select class="form-select-custom" id="newp-type" required>
@@ -945,26 +1035,28 @@
                   <option value="C">Tipo C (Liviano)</option>
                 </select>
               </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
               <div class="form-field">
                 <label class="form-label-custom">Fecha de Vencimiento</label>
                 <input type="date" class="form-input-custom" id="newp-expdate" required>
+              </div>
+              <div class="form-field">
+                <label class="form-label-custom">País de Residencia</label>
+                <select class="form-select-custom" id="newp-country" required>
+                  <option value="Guatemala">Guatemala</option>
+                  <option value="Honduras">Honduras</option>
+                  <option value="El Salvador">El Salvador</option>
+                  <option value="Nicaragua">Nicaragua</option>
+                  <option value="Costa Rica">Costa Rica</option>
+                </select>
               </div>
             </div>
 
             <div class="form-field">
               <label class="form-label-custom">Puesto / Cargo</label>
               <input type="text" class="form-input-custom" id="newp-puesto" required placeholder="Ej. Piloto Repartidor - Zona Norte">
-            </div>
-
-            <div class="form-field">
-              <label class="form-label-custom">País de Residencia</label>
-              <select class="form-select-custom" id="newp-country" required>
-                <option value="Guatemala">Guatemala</option>
-                <option value="Honduras">Honduras</option>
-                <option value="El Salvador">El Salvador</option>
-                <option value="Nicaragua">Nicaragua</option>
-                <option value="Costa Rica">Costa Rica</option>
-              </select>
             </div>
 
             <!-- ADMIN CAPTURE / UPLOAD LICENSE PHOTO FOR NEW PILOT -->
@@ -992,7 +1084,7 @@
 
     <!-- MODAL: ADD VEHICLE -->
     <div class="modal-backdrop" id="modal-add-vehicle">
-      <div class="modal-container-card">
+      <div class="modal-container-card" style="max-width: 580px;">
         <div class="modal-header-bar">
           <h3>Registrar Nuevo Vehículo</h3>
           <button type="button" class="modal-close-icon" onclick="closeModal('modal-add-vehicle')">&times;</button>
@@ -1005,8 +1097,19 @@
                 <input type="text" class="form-input-custom" id="newv-plate" required placeholder="P-554GTM">
               </div>
               <div class="form-field">
-                <label class="form-label-custom">Nombre / Código Unidad</label>
-                <input type="text" class="form-input-custom" id="newv-unit" required placeholder="Unidad H4">
+                <label class="form-label-custom">Año</label>
+                <input type="number" class="form-input-custom" id="newv-year" required placeholder="2024" min="1990" max="2030">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+              <div class="form-field">
+                <label class="form-label-custom">Marca</label>
+                <input type="text" class="form-input-custom" id="newv-brand" required placeholder="Ej. Toyota, Isuzu, Hyundai">
+              </div>
+              <div class="form-field">
+                <label class="form-label-custom">Modelo</label>
+                <input type="text" class="form-input-custom" id="newv-model" required placeholder="Ej. Hilux, H100, NPR">
               </div>
             </div>
 
@@ -1017,47 +1120,59 @@
                   <option value="Panel">Panel</option>
                   <option value="Camioncito">Camioncito</option>
                   <option value="Pickup">Pickup</option>
+                  <option value="Sedán">Sedán</option>
+                  <option value="SUV">SUV</option>
+                  <option value="Camión">Camión</option>
+                  <option value="Tráiler">Tráiler</option>
                 </select>
               </div>
               <div class="form-field">
-                <label class="form-label-custom">Marca / Modelo</label>
-                <select class="form-select-custom" id="newv-model" required>
-                  <option value="Toyota">Toyota</option>
-                  <option value="Hyundai">Hyundai</option>
-                  <option value="Isuzu">Isuzu</option>
-                </select>
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
-              <div class="form-field">
-                <label class="form-label-custom">Rendimiento (KM/Galón)</label>
-                <input type="number" step="0.1" class="form-input-custom" id="newv-rendimiento" required placeholder="35">
-              </div>
-              <div class="form-field">
-                <label class="form-label-custom">Tipo Combustible</label>
-                <select class="form-select-custom" id="newv-combustible" required>
-                  <option value="Diésel">Diésel</option>
-                  <option value="Gasolina">Gasolina</option>
+                <label class="form-label-custom">País de Asignación</label>
+                <select class="form-select-custom" id="newv-country" required>
+                  <option value="Guatemala">Guatemala</option>
+                  <option value="Honduras">Honduras</option>
+                  <option value="El Salvador">El Salvador</option>
+                  <option value="Nicaragua">Nicaragua</option>
+                  <option value="Costa Rica">Costa Rica</option>
                 </select>
               </div>
             </div>
 
-            <div class="form-field">
-              <label class="form-label-custom">Número de Chasis</label>
-              <input type="text" class="form-input-custom" id="newv-chassis" required placeholder="JTEBR3FJ2CK998877">
+            <!-- INSURANCE SELECTION (SÍ / NO BUTTONS) -->
+            <div class="form-field" style="border-top: 1px solid var(--border-light); padding-top: 14px; margin-top: 6px;">
+              <label class="form-label-custom">Seguro del Vehículo</label>
+              <div style="display: flex; gap: 12px; margin-top: 6px;">
+                <button type="button" id="btn-insurance-yes" class="btn-toggle-insurance active" onclick="setInsuranceChoice('Sí')" style="flex: 1; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; border: 2px solid #059669; background: #ecfdf5; color: #047857; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                  <i data-lucide="check-circle" style="width: 16px; height: 16px;"></i> Sí
+                </button>
+                <button type="button" id="btn-insurance-no" class="btn-toggle-insurance" onclick="setInsuranceChoice('No')" style="flex: 1; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 13px; cursor: pointer; border: 2px solid #cbd5e1; background: #f8fafc; color: #64748b; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                  <i data-lucide="x-circle" style="width: 16px; height: 16px;"></i> No
+                </button>
+              </div>
+              <input type="hidden" id="newv-insurance" value="Sí">
             </div>
 
-            <div class="form-field">
-              <label class="form-label-custom">País de Asignación</label>
-              <select class="form-select-custom" id="newv-country" required>
-                <option value="Guatemala">Guatemala</option>
-                <option value="Honduras">Honduras</option>
-                <option value="El Salvador">El Salvador</option>
-                <option value="Nicaragua">Nicaragua</option>
-                <option value="Costa Rica">Costa Rica</option>
-              </select>
+            <!-- INSURANCE DETAILS BLOCK (NO. PÓLIZA, F. VENCIMIENTO, TEL. PÓLIZA) -->
+            <div id="insurance-details-container" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-top: 10px;">
+              <p style="font-size: 11px; font-weight: 800; color: #475569; text-transform: uppercase; margin: 0 0 10px 0;">🛡️ Información de la Póliza de Seguro</p>
+              
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+                <div class="form-field" style="margin: 0;">
+                  <label class="form-label-custom">No. Póliza</label>
+                  <input type="text" class="form-input-custom" id="newv-policy-number" placeholder="Ej. POL-998877">
+                </div>
+                <div class="form-field" style="margin: 0;">
+                  <label class="form-label-custom">F. Vencimiento</label>
+                  <input type="date" class="form-input-custom" id="newv-policy-exp">
+                </div>
+              </div>
+
+              <div class="form-field" style="margin: 0;">
+                <label class="form-label-custom">Tel. Póliza (Emergencias/Asistencia)</label>
+                <input type="tel" class="form-input-custom" id="newv-policy-phone" placeholder="Ej. +502 2200-1122 / 1777">
+              </div>
             </div>
+
           </div>
           <div class="modal-footer-bar">
             <button type="button" class="btn-secondary-custom" onclick="closeModal('modal-add-vehicle')">Cancelar</button>

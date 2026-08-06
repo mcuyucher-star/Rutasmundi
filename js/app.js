@@ -92,9 +92,12 @@ function populatePilotSelectInLogin() {
   const select = document.getElementById('login-pilot-id');
   if (!select) return;
 
-  select.innerHTML = pilots.map(p => `
-    <option value="${p.id}">${p.firstName} ${p.lastName} (${p.country}) - Lic: ${p.licenseNumber}</option>
-  `).join('');
+  select.innerHTML = pilots.map(p => {
+    const firstName = (p.firstName || '').trim().split(/\s+/)[0] || '';
+    const lastName = (p.lastName || '').trim().split(/\s+/)[0] || '';
+    const displayName = `${firstName} ${lastName}`.trim() || 'Piloto';
+    return `<option value="${p.id}">${displayName}</option>`;
+  }).join('');
 }
 
 function switchLoginRole(role) {
@@ -302,6 +305,59 @@ function initPilotView() {
   renderPilotRouteHistory();
 }
 
+function getCountryAcronym(countryName) {
+  if (!countryName) return 'GTM';
+  const c = countryName.trim().toLowerCase();
+  if (c.includes('guatemala')) return 'GTM';
+  if (c.includes('honduras')) return 'HND';
+  if (c.includes('salvador')) return 'SLV';
+  if (c.includes('nicaragua')) return 'NIC';
+  if (c.includes('costa rica')) return 'CRI';
+  return countryName.substring(0, 3).toUpperCase();
+}
+
+function isVehicleAllowedForLicense(vehicleType, licenseType) {
+  if (!licenseType) return true;
+  const lType = licenseType.toUpperCase().trim();
+  const vType = (vehicleType || '').toLowerCase().trim();
+
+  // Tipo C: Only Light Vehicles (Panel, Pickup, Sedán, SUV)
+  if (lType === 'C') {
+    const isLight = vType.includes('panel') || vType.includes('pickup') || vType.includes('sedán') || vType.includes('sedan') || vType.includes('suv') || vType.includes('liviano');
+    const isHeavyOrMedium = vType.includes('camioncito') || vType.includes('camión') || vType.includes('camion') || vType.includes('tráiler') || vType.includes('trailer');
+    return isLight && !isHeavyOrMedium;
+  }
+
+  // Tipo B: Light & Medium Vehicles (Panel, Pickup, Sedán, SUV, Camioncito)
+  if (lType === 'B') {
+    const isHeavy = vType.includes('camión pesado') || vType.includes('camion pesado') || vType.includes('tráiler') || vType.includes('trailer');
+    return !isHeavy;
+  }
+
+  // Tipo A: All Vehicles Allowed (Heavy, Medium, Light)
+  if (lType === 'A') {
+    return true;
+  }
+
+  return true;
+}
+
+function handlePilotChange() {
+  const select = document.getElementById('insp-pilot-id');
+  if (!select) return;
+  const pilotId = select.value;
+  const pilots = Storage.getPilots();
+  const pilot = pilots.find(p => p.id === pilotId);
+
+  const countryBox = document.getElementById('insp-pilot-country-box');
+  if (countryBox && pilot) {
+    const acronym = getCountryAcronym(pilot.country);
+    countryBox.innerHTML = `<span class="country-acronym-badge" style="background:#2563eb; color:#fff; font-weight:800; padding:2px 8px; border-radius:4px;">${acronym}</span>`;
+  }
+
+  populateVehicleDropdown(pilot);
+}
+
 function populatePilotDropdown() {
   const pilots = Storage.getPilots();
   const select = document.getElementById('insp-pilot-id');
@@ -317,9 +373,10 @@ function populatePilotDropdown() {
 
   select.innerHTML = pilots.map(p => {
     const isSelected = matchedPilot ? p.id === matchedPilot.id : p.id === currentUserId;
+    const countryAcronym = getCountryAcronym(p.country);
     return `
       <option value="${p.id}" ${isSelected ? 'selected' : ''}>
-        ${p.firstName} ${p.lastName} (${p.country})
+        ${p.firstName} ${p.lastName} [${countryAcronym}]
       </option>
     `;
   }).join('');
@@ -337,44 +394,93 @@ function populatePilotDropdown() {
     select.style.opacity = '1';
     select.style.cursor = 'default';
   }
+
+  handlePilotChange();
 }
 
-function populateVehicleDropdown() {
-  const vehicles = Storage.getVehicles();
+function populateVehicleDropdown(pilotObj) {
   const select = document.getElementById('insp-vehicle-id');
   if (!select) return;
 
-  select.innerHTML = vehicles.map(v => `
-    <option value="${v.id}">${v.unitName} - Placa: ${v.plate} (${v.model} ${v.vehicleType})</option>
+  let pilot = pilotObj;
+  if (!pilot) {
+    const pilotId = document.getElementById('insp-pilot-id')?.value;
+    const pilots = Storage.getPilots();
+    pilot = pilots.find(p => p.id === pilotId);
+  }
+
+  const vehicles = Storage.getVehicles();
+  const licenseType = pilot ? pilot.licenseType : 'C';
+
+  // Filter vehicles according to license restriction
+  const allowedVehicles = vehicles.filter(v => isVehicleAllowedForLicense(v.vehicleType, licenseType));
+
+  if (allowedVehicles.length === 0) {
+    select.innerHTML = `<option value="">⚠️ No hay vehículos livianos compatibles disponibles para Licencia Tipo ${licenseType}</option>`;
+    const badgePlate = document.getElementById('vbadge-plate');
+    const badgeModel = document.getElementById('vbadge-model');
+    const badgeType = document.getElementById('vbadge-type');
+    const badgeYear = document.getElementById('vbadge-year');
+    const badgeIns = document.getElementById('vbadge-insurance');
+    if (badgePlate) badgePlate.textContent = '—';
+    if (badgeModel) badgeModel.textContent = '—';
+    if (badgeType) badgeType.textContent = '—';
+    if (badgeYear) badgeYear.textContent = '—';
+    if (badgeIns) badgeIns.textContent = '—';
+    return;
+  }
+
+  select.innerHTML = allowedVehicles.map(v => `
+    <option value="${v.id}">${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType})</option>
   `).join('');
 
   handleVehicleChange();
 }
 
 function handleVehicleChange() {
-  const vehicleId = document.getElementById('insp-vehicle-id').value;
+  const vehicleId = document.getElementById('insp-vehicle-id')?.value;
   const vehicles = Storage.getVehicles();
   const v = vehicles.find(item => item.id === vehicleId);
 
+  const badgePlate = document.getElementById('vbadge-plate');
+  const badgeModel = document.getElementById('vbadge-model');
+  const badgeType = document.getElementById('vbadge-type');
+  const badgeYear = document.getElementById('vbadge-year');
+  const badgeIns = document.getElementById('vbadge-insurance');
+
   if (v) {
-    document.getElementById('vbadge-plate').textContent = v.plate;
-    document.getElementById('vbadge-unit').textContent = v.unitName;
-    document.getElementById('vbadge-type').textContent = v.vehicleType;
-    document.getElementById('vbadge-model').textContent = v.model;
-    document.getElementById('vbadge-chassis').textContent = v.chassisNumber;
+    if (badgePlate) badgePlate.textContent = v.plate;
+    if (badgeModel) badgeModel.textContent = `${v.brand || ''} ${v.model || ''}`.trim() || '—';
+    if (badgeType) badgeType.textContent = v.vehicleType || '—';
+    if (badgeYear) badgeYear.textContent = v.year || '—';
+    if (badgeIns) {
+      if (v.hasInsurance === 'Sí') {
+        badgeIns.innerHTML = `<span style="color:#047857; font-weight:800;">✓ Sí (Pol: ${v.policyNumber || 'Vigente'})</span>`;
+      } else {
+        badgeIns.innerHTML = `<span style="color:#b91c1c; font-weight:800;">✕ No</span>`;
+      }
+    }
   }
 }
 
-function setQuality(type, val) {
+function setQuality(type, val, targetEl) {
   const container = document.getElementById(`qs-${type}`);
   if (!container) return;
 
   container.querySelectorAll('.quality-pill-item').forEach(pill => {
     pill.classList.remove('active');
-    if (pill.textContent.trim().toLowerCase().startsWith(val.toLowerCase())) {
-      pill.classList.add('active');
-    }
   });
+
+  if (targetEl) {
+    targetEl.classList.add('active');
+  } else {
+    container.querySelectorAll('.quality-pill-item').forEach(pill => {
+      const onclickAttr = pill.getAttribute('onclick') || '';
+      if (onclickAttr.includes(`'${val}'`)) {
+        pill.classList.add('active');
+      }
+    });
+  }
 
   if (type === 'interior') inspectionFormState.interiorCleanliness = val;
   if (type === 'exterior') inspectionFormState.exteriorCleanliness = val;
@@ -386,21 +492,84 @@ function setQuality(type, val) {
   if (type === 'fluid-hidraulico') inspectionFormState.fluids.hidraulico = val;
 }
 
+function updateSwitchCardState(chk, labelId) {
+  const lbl = document.getElementById(labelId);
+  const card = chk.closest('.defect-switch-card');
+  if (chk.checked) {
+    if (lbl) {
+      lbl.textContent = 'Sí';
+      lbl.style.background = '#fef2f2';
+      lbl.style.color = '#e11d48';
+    }
+    if (card) {
+      card.style.borderColor = '#f43f5e';
+      card.style.background = '#fff1f2';
+    }
+  } else {
+    if (lbl) {
+      lbl.textContent = 'No';
+      lbl.style.background = '#f1f5f9';
+      lbl.style.color = '#64748b';
+    }
+    if (card) {
+      card.style.borderColor = 'var(--border-light)';
+      card.style.background = '#ffffff';
+    }
+  }
+}
+
+function updateKitCardState(chk, labelId) {
+  const lbl = document.getElementById(labelId);
+  const card = chk.closest('.kit-switch-card');
+  if (chk.checked) {
+    if (lbl) {
+      lbl.textContent = 'Sí';
+      lbl.style.background = '#d1fae5';
+      lbl.style.color = '#047857';
+    }
+    if (card) {
+      card.style.borderColor = '#10b981';
+      card.style.background = '#ecfdf5';
+    }
+  } else {
+    if (lbl) {
+      lbl.textContent = 'No';
+      lbl.style.background = '#fef2f2';
+      lbl.style.color = '#e11d48';
+    }
+    if (card) {
+      card.style.borderColor = '#f43f5e';
+      card.style.background = '#fff1f2';
+    }
+  }
+}
+
 function toggleDefectsSubOptions(hasDefects) {
   const container = document.getElementById('defects-suboptions-container');
   const labelText = document.getElementById('label-has-defects');
+  const mainCard = document.querySelector('.defect-switch-card-main');
 
   if (hasDefects) {
-    container.style.display = 'grid';
+    if (container) container.style.display = 'grid';
     if (labelText) {
-      labelText.textContent = 'Sí';
-      labelText.style.color = 'var(--rose)';
+      labelText.textContent = 'Sí (Presenta Daños)';
+      labelText.style.color = '#e11d48';
+      labelText.style.background = '#fef2f2';
+    }
+    if (mainCard) {
+      mainCard.style.borderColor = '#f43f5e';
+      mainCard.style.background = '#fff1f2';
     }
   } else {
-    container.style.display = 'none';
+    if (container) container.style.display = 'none';
     if (labelText) {
-      labelText.textContent = 'No';
-      labelText.style.color = 'var(--text-muted)';
+      labelText.textContent = 'No (Sin Daños)';
+      labelText.style.color = '#64748b';
+      labelText.style.background = '#f1f5f9';
+    }
+    if (mainCard) {
+      mainCard.style.borderColor = 'var(--border-light)';
+      mainCard.style.background = '#ffffff';
     }
 
     ['chk-dmg-carroceria', 'chk-dmg-vidrios', 'chk-dmg-llantas', 'chk-dmg-espejos', 'chk-alarm', 'chk-def-tablero'].forEach(id => {
@@ -1100,6 +1269,9 @@ function renderAdminPilotsTable() {
   const filtered = pilots.filter(p => 
     p.firstName.toLowerCase().includes(searchVal) ||
     p.lastName.toLowerCase().includes(searchVal) ||
+    (p.phone && p.phone.toLowerCase().includes(searchVal)) ||
+    (p.email && p.email.toLowerCase().includes(searchVal)) ||
+    (p.puesto && p.puesto.toLowerCase().includes(searchVal)) ||
     p.licenseNumber.toLowerCase().includes(searchVal) ||
     p.country.toLowerCase().includes(searchVal)
   );
@@ -1107,23 +1279,37 @@ function renderAdminPilotsTable() {
   tbody.innerHTML = filtered.map(p => {
     const expInfo = getLicenseStatus(p.expirationDate);
     const photoThumb = p.licensePhoto 
-      ? `<img src="${p.licensePhoto}" style="width:36px; height:28px; object-fit:cover; border-radius:4px; border:1px solid #cbd5e1; cursor:pointer;" onclick="viewPilotLicenseModal('${p.id}')" title="Ver Licencia">`
+      ? `<img src="${p.licensePhoto}" style="width:38px; height:28px; object-fit:cover; border-radius:4px; border:1px solid #cbd5e1; cursor:pointer;" onclick="viewPilotLicenseModal('${p.id}')" title="Ver Licencia">`
       : `<span style="font-size:10px; color:var(--text-muted);">Sin foto</span>`;
+
+    const defaultEmail = `${p.firstName.toLowerCase()}.${p.lastName.toLowerCase()}@munditrofeos.com`;
 
     return `
       <tr>
-        <td><strong>${p.firstName} ${p.lastName}</strong></td>
-        <td>${p.age} años <br><span style="font-size:11px; color:var(--text-muted);">${p.puesto || ''}</span></td>
+        <td>
+          <div style="font-weight: 800; color: var(--dark-slate);">${p.firstName} ${p.lastName}</div>
+          <div style="font-size: 11px; color: #64748b; font-weight: 500;">✉️ ${p.email || defaultEmail}</div>
+        </td>
+        <td>
+          <div style="font-weight: 800; color: var(--primary); font-size: 13px;">📞 ${p.phone || 'N/A'}</div>
+        </td>
+        <td>
+          <div style="font-weight: 700; color: #1e293b; font-size: 12px;">${p.puesto || 'Piloto Corporativo'}</div>
+          <div style="font-size: 11px; color: #64748b;">🎂 ${p.age} años</div>
+        </td>
         <td><code>${p.licenseNumber}</code></td>
         <td><span class="badge-chip badge-gray">Tipo ${p.licenseType}</span></td>
         <td>${p.expirationDate}</td>
         <td>${photoThumb}</td>
         <td><span class="badge-chip ${expInfo.colorClass}">${expInfo.text}</span></td>
-        <td>${p.country}</td>
+        <td><span style="font-weight: 600; color: #334155;">📍 ${p.country}</span></td>
         <td>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <button type="button" class="btn-secondary-custom" onclick="downloadPilotRecordPDF('${p.id}')" style="padding: 4px 8px; font-size: 11px;">
-              📄 PDF Expediente
+            <button type="button" class="btn-secondary-custom" onclick="viewPilotFullDetailsModal('${p.id}')" style="padding: 4px 8px; font-size: 11px; background: #e0f2fe; color: #0369a1; border-color: #bae6fd;" title="Ver todos los datos del piloto">
+              👁️ Ficha
+            </button>
+            <button type="button" class="btn-secondary-custom" onclick="downloadPilotRecordPDF('${p.id}')" style="padding: 4px 8px; font-size: 11px;" title="Descargar Expediente PDF">
+              📄 PDF
             </button>
             <button type="button" class="btn-logout-nav" onclick="deletePilot('${p.id}')" style="padding: 4px 8px; font-size: 11px;">
               Eliminar
@@ -1133,6 +1319,80 @@ function renderAdminPilotsTable() {
       </tr>
     `;
   }).join('');
+}
+
+function viewPilotFullDetailsModal(pilotId) {
+  const pilots = Storage.getPilots();
+  const p = pilots.find(item => item.id === pilotId);
+  if (!p) return;
+
+  const expInfo = getLicenseStatus(p.expirationDate);
+  const title = document.getElementById('modal-detail-title');
+  const body = document.getElementById('modal-inspection-body');
+  const btnPdf = document.getElementById('btn-modal-download-pdf');
+  if (btnPdf) btnPdf.style.display = 'none';
+
+  const defaultEmail = `${p.firstName.toLowerCase()}.${p.lastName.toLowerCase()}@munditrofeos.com`;
+
+  title.textContent = `📋 Ficha de Conductor - ${p.firstName} ${p.lastName}`;
+  body.innerHTML = `
+    <div style="background: #ffffff; border-radius: 12px; padding: 10px;">
+      <!-- Header Pilot Info -->
+      <div style="display: flex; gap: 16px; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 14px; margin-bottom: 16px;">
+        <div style="width: 54px; height: 54px; border-radius: 50%; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; border: 2px solid #3b82f6; flex-shrink: 0;">
+          ${p.firstName[0]}${p.lastName[0]}
+        </div>
+        <div>
+          <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0;">${p.firstName} ${p.lastName}</h3>
+          <p style="font-size: 12px; color: #64748b; margin: 2px 0 0 0; font-weight: 600;">${p.puesto || 'Piloto Repartidor'} · 📍 ${p.country}</p>
+        </div>
+      </div>
+
+      <!-- Detail Grid (2 Columns) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+        <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Teléfono de Contacto</div>
+          <div style="font-size: 14px; font-weight: 800; color: #2563eb; margin-top: 2px;">📞 ${p.phone || 'N/A'}</div>
+        </div>
+
+        <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Correo Electrónico</div>
+          <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 2px;">✉️ ${p.email || defaultEmail}</div>
+        </div>
+
+        <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Edad de Piloto</div>
+          <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 2px;">🎂 ${p.age} años</div>
+        </div>
+
+        <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">País de Operación</div>
+          <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 2px;">📍 ${p.country}</div>
+        </div>
+
+        <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">No. Licencia & Tipo</div>
+          <div style="font-size: 13px; font-weight: 800; color: #0f172a; margin-top: 2px;"><code>${p.licenseNumber}</code> (Tipo ${p.licenseType})</div>
+        </div>
+
+        <div style="background: #f8fafc; padding: 10px 14px; border-radius: 8px; border: 1px solid #e2e8f0;">
+          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase;">Vencimiento & Estado</div>
+          <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 2px; display: flex; align-items: center; gap: 8px;">
+            ${p.expirationDate} <span class="badge-chip ${expInfo.colorClass}" style="font-size: 10px;">${expInfo.text}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photo Digitalized License Section -->
+      ${p.licensePhoto ? `
+        <div style="margin-top: 14px; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+          <p style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 8px;">Fotografía Oficial de Licencia Digitalizada</p>
+          <img src="${p.licensePhoto}" style="max-width: 100%; max-height: 250px; object-fit: contain; border-radius: 8px; border: 1px solid #cbd5e1; box-shadow: var(--shadow-md);">
+        </div>
+      ` : ''}
+    </div>
+  `;
+  openModal('modal-inspection-details');
 }
 
 /**
@@ -1172,12 +1432,12 @@ function downloadPilotRecordPDF(pilotId) {
           <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${pilotFullName}</div>
         </div>
         <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">EDAD</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${pilot.age} años</div>
+          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">TELÉFONO</div>
+          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${pilot.phone || 'N/A'}</div>
         </div>
         <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
-          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">PUESTO / ZONA</div>
-          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${pilot.puesto || 'Piloto Corporativo'}</div>
+          <div style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em;">EDAD / PUESTO</div>
+          <div style="font-size: 14px; font-weight: 800; color: #000000; margin-top: 2px;">${pilot.age} años · ${pilot.puesto || 'Piloto Corporativo'}</div>
         </div>
 
         <div style="border-bottom: 1px solid #e2e8f0; padding-bottom: 6px;">
@@ -1272,25 +1532,36 @@ function renderAdminVehiclesTable() {
 
   const filtered = vehicles.filter(v => 
     v.plate.toLowerCase().includes(searchVal) ||
-    v.unitName.toLowerCase().includes(searchVal) ||
-    v.model.toLowerCase().includes(searchVal)
+    (v.brand && v.brand.toLowerCase().includes(searchVal)) ||
+    (v.model && v.model.toLowerCase().includes(searchVal)) ||
+    (v.vehicleType && v.vehicleType.toLowerCase().includes(searchVal)) ||
+    (v.policyNumber && v.policyNumber.toLowerCase().includes(searchVal))
   );
 
-  tbody.innerHTML = filtered.map(v => `
-    <tr>
-      <td><strong>${v.plate}</strong></td>
-      <td>${v.unitName}</td>
-      <td><span class="badge-chip badge-gray">${v.vehicleType}</span></td>
-      <td>${v.model}</td>
-      <td><strong>${v.rendimiento || 35} KM/Gal</strong></td>
-      <td>${v.tipoCombustible || 'Diésel'}</td>
-      <td>
-        <button type="button" class="btn-logout-nav" onclick="deleteVehicle('${v.id}')" style="padding: 4px 10px; font-size: 11px;">
-          Eliminar
-        </button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = filtered.map(v => {
+    const insuranceBadge = v.hasInsurance === 'Sí'
+      ? `<span class="badge-chip badge-success" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;">✓ Sí</span>`
+      : `<span class="badge-chip badge-danger" style="background:#fef2f2; color:#b91c1c; border:1px solid #fecaca;">✕ No</span>`;
+
+    return `
+      <tr>
+        <td><strong>${v.plate}</strong></td>
+        <td>${v.brand || '—'}</td>
+        <td>${v.model || '—'}</td>
+        <td><span class="badge-chip badge-gray">${v.vehicleType || 'Panel'}</span></td>
+        <td>${v.year || '—'}</td>
+        <td>${insuranceBadge}</td>
+        <td><code>${v.policyNumber || 'N/A'}</code></td>
+        <td>${v.policyExpiration || 'N/A'}</td>
+        <td><span style="font-size:12px; font-weight:600; color:#334155;">${v.policyPhone || 'N/A'}</span></td>
+        <td>
+          <button type="button" class="btn-logout-nav" onclick="deleteVehicle('${v.id}')" style="padding: 4px 10px; font-size: 11px;">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function renderAdminPresetRoutesTable() {
@@ -1335,10 +1606,16 @@ function renderAdminMonitoringTable() {
   let rowsHtml = '';
 
   if (currentInsp) {
+    const cAcronym = getCountryAcronym(currentInsp.country);
     rowsHtml += `
       <tr style="background: #eff6ff;">
         <td><strong>${currentInsp.date}</strong></td>
-        <td>${currentInsp.pilotName}</td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <strong style="color: var(--dark-slate);">${currentInsp.pilotName}</strong>
+            <span style="background: #2563eb; color: #ffffff; font-weight: 800; font-size: 10px; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em;">${cAcronym}</span>
+          </div>
+        </td>
         <td><span class="badge-chip badge-gray">${currentInsp.vehiclePlate}</span> (${currentInsp.vehicleUnit})</td>
         <td><span class="badge-chip badge-warning">Ruta 1 Día en Progreso</span></td>
         <td>${currentInsp.startTime} - En vivo</td>
@@ -1355,6 +1632,7 @@ function renderAdminMonitoringTable() {
 
   viaticosReqs.forEach(vr => {
     const status = vr.status || 'Pendiente Aprobación';
+    const cAcronym = getCountryAcronym(vr.country || 'Guatemala');
     let statusClass = 'badge-warning';
     if (status === 'Aprobada') statusClass = 'badge-success';
     if (status === 'Rechazada') statusClass = 'badge-rose';
@@ -1371,7 +1649,7 @@ function renderAdminMonitoringTable() {
         <button type="button" class="btn-primary-lg" onclick="approveViaticosRequest('${vr.id}')" style="padding: 4px 8px; font-size: 10px; width: auto; background: #059669; border: none; font-weight: 700;">
           ✓ Aprobar
         </button>
-        <button type="button" class="btn-logout-nav" onclick="rejectViaticosRequest('${vr.id}')" style="padding: 4px 8px; font-size: 10px; border-color: #fda4af;">
+        <button type="button" class="btn-logout-nav" onclick="rejectViaticosRequest('${vr.id}')" style="padding: 4px 8px; font-size: 10px;">
           ✕ Rechazar
         </button>
       `;
@@ -1380,9 +1658,14 @@ function renderAdminMonitoringTable() {
     rowsHtml += `
       <tr>
         <td><strong>${vr.fechaSalida}</strong></td>
-        <td>${vr.pilotName}</td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <strong style="color: var(--dark-slate);">${vr.solicitanteName}</strong>
+            <span style="background: #2563eb; color: #ffffff; font-weight: 800; font-size: 10px; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em;">${cAcronym}</span>
+          </div>
+        </td>
         <td><span class="badge-chip badge-gray">${vr.vehiclePlate}</span></td>
-        <td><span class="badge-chip badge-purple">${vr.motivo || 'Viáticos (+1 Día)'}</span></td>
+        <td><span class="badge-chip badge-primary">Ruta Multidía (${vr.diasTotales} Días)</span></td>
         <td>${vr.fechaSalida} al ${vr.fechaRegreso}</td>
         <td><strong>${formatCurrency(vr.totalSolicitado)}</strong></td>
         <td><span class="badge-chip ${statusClass}">${status}</span></td>
@@ -1445,13 +1728,63 @@ function rejectViaticosRequest(reqId) {
    ADMIN ACTIONS (PILOT, VEHICLE & CATALOG CRUD)
    ========================================================================== */
 
+function setInsuranceChoice(choice) {
+  const input = document.getElementById('newv-insurance');
+  const btnYes = document.getElementById('btn-insurance-yes');
+  const btnNo = document.getElementById('btn-insurance-no');
+  const container = document.getElementById('insurance-details-container');
+  if (!input || !btnYes || !btnNo) return;
+
+  input.value = choice;
+  if (choice === 'Sí') {
+    btnYes.style.border = '2px solid #059669';
+    btnYes.style.background = '#ecfdf5';
+    btnYes.style.color = '#047857';
+    btnYes.classList.add('active');
+
+    btnNo.style.border = '2px solid #cbd5e1';
+    btnNo.style.background = '#f8fafc';
+    btnNo.style.color = '#64748b';
+    btnNo.classList.remove('active');
+
+    if (container) {
+      container.style.display = 'block';
+      container.style.opacity = '1';
+    }
+  } else {
+    btnNo.style.border = '2px solid #dc2626';
+    btnNo.style.background = '#fef2f2';
+    btnNo.style.color = '#b91c1c';
+    btnNo.classList.add('active');
+
+    btnYes.style.border = '2px solid #cbd5e1';
+    btnYes.style.background = '#f8fafc';
+    btnYes.style.color = '#64748b';
+    btnYes.classList.remove('active');
+
+    if (container) {
+      container.style.display = 'none';
+    }
+  }
+}
+
 function openModalAddPilot() {
   adminNewPilotPhotoUrl = '';
   document.getElementById('newp-photo-preview-container').style.display = 'none';
   openModal('modal-add-pilot');
 }
 
-function openModalAddVehicle() { openModal('modal-add-vehicle'); }
+function openModalAddVehicle() { 
+  setInsuranceChoice('Sí');
+  const policyNum = document.getElementById('newv-policy-number');
+  const policyExp = document.getElementById('newv-policy-exp');
+  const policyPhone = document.getElementById('newv-policy-phone');
+  if (policyNum) policyNum.value = '';
+  if (policyExp) policyExp.value = '';
+  if (policyPhone) policyPhone.value = '';
+  openModal('modal-add-vehicle'); 
+}
+
 function openModalAddPresetRoute() { openModal('modal-add-preset-route'); }
 function openModalAddMotivo() { openModal('modal-add-motivo'); }
 
@@ -1459,6 +1792,7 @@ function handleSavePilotSubmit(e) {
   e.preventDefault();
   const firstName = document.getElementById('newp-firstname').value;
   const lastName = document.getElementById('newp-lastname').value;
+  const phone = document.getElementById('newp-phone').value;
   const age = document.getElementById('newp-age').value;
   const licenseNumber = document.getElementById('newp-license').value;
   const licenseType = document.getElementById('newp-type').value;
@@ -1470,6 +1804,7 @@ function handleSavePilotSubmit(e) {
     id: `p_${Date.now()}`,
     firstName,
     lastName,
+    phone,
     age,
     licenseNumber,
     licenseType,
@@ -1484,7 +1819,7 @@ function handleSavePilotSubmit(e) {
   Storage.savePilots(pilots);
 
   closeModal('modal-add-pilot');
-  showToast(`Piloto ${firstName} ${lastName} registrado con fotografía de licencia.`, 'success');
+  showToast(`Piloto ${firstName} ${lastName} registrado con teléfono ${phone}.`, 'success');
   updateAdminKPIs();
   renderAdminPilotsTable();
   populatePilotDropdown();
@@ -1504,14 +1839,18 @@ function deletePilot(id) {
 
 function handleSaveVehicleSubmit(e) {
   e.preventDefault();
-  const plate = document.getElementById('newv-plate').value;
-  const unitName = document.getElementById('newv-unit').value;
+  const plate = document.getElementById('newv-plate').value.trim().toUpperCase();
+  const year = document.getElementById('newv-year').value.trim();
+  const brand = document.getElementById('newv-brand').value.trim();
+  const model = document.getElementById('newv-model').value.trim();
   const vehicleType = document.getElementById('newv-type').value;
-  const model = document.getElementById('newv-model').value;
-  const rendimiento = parseFloat(document.getElementById('newv-rendimiento').value) || 35;
-  const tipoCombustible = document.getElementById('newv-combustible').value;
-  const chassisNumber = document.getElementById('newv-chassis').value;
   const country = document.getElementById('newv-country').value;
+  const hasInsurance = document.getElementById('newv-insurance').value; // "Sí" or "No"
+
+  const policyNumber = hasInsurance === 'Sí' ? (document.getElementById('newv-policy-number').value.trim() || 'POL-998877') : 'N/A';
+  const policyExpiration = hasInsurance === 'Sí' ? document.getElementById('newv-policy-exp').value : '';
+  const policyPhone = hasInsurance === 'Sí' ? (document.getElementById('newv-policy-phone').value.trim() || 'N/A') : 'N/A';
+  const unitName = `${brand} ${model}`;
 
   const vehicles = Storage.getVehicles();
   if (vehicles.some(v => v.plate.toLowerCase() === plate.toLowerCase())) {
@@ -1522,20 +1861,26 @@ function handleSaveVehicleSubmit(e) {
   const newVehicle = {
     id: `v_${Date.now()}`,
     plate,
-    unitName,
-    vehicleType,
+    brand,
     model,
-    rendimiento,
-    tipoCombustible,
-    chassisNumber,
-    country
+    vehicleType,
+    year,
+    hasInsurance,
+    policyNumber,
+    policyExpiration,
+    policyPhone,
+    unitName,
+    country,
+    rendimiento: 35,
+    tipoCombustible: 'Diésel',
+    chassisNumber: `CH-${Date.now().toString().slice(-8)}`
   };
 
   vehicles.push(newVehicle);
   Storage.saveVehicles(vehicles);
 
   closeModal('modal-add-vehicle');
-  showToast(`Vehículo ${unitName} (${plate}) registrado.`, 'success');
+  showToast(`Vehículo ${brand} ${model} (Placa ${plate}) registrado con éxito.`, 'success');
   updateAdminKPIs();
   renderAdminVehiclesTable();
   populateVehicleDropdown();
