@@ -49,13 +49,41 @@ const DEFAULT_PILOTS = [
     lastName: 'Alvarado',
     phone: '+503 7788-9900',
     age: '29',
-    licenseNumber: 'ESA-11223',
+    licenseNumber: 'SLV-11223',
     expirationDate: '2027-03-20',
     licenseType: 'A',
     country: 'El Salvador',
     puesto: 'Supervisor de Rutas - El Salvador',
     email: 'roberto.alvarado@munditrofeos.com',
     licensePhoto: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 'p4',
+    firstName: 'Luis Fernando',
+    lastName: 'Zelaya',
+    phone: '+505 8899-4455',
+    age: '38',
+    licenseNumber: 'NIC-44332',
+    expirationDate: '2026-10-10',
+    licenseType: 'B',
+    country: 'Nicaragua',
+    puesto: 'Piloto Transportista - Zona Pacífico',
+    email: 'luis.zelaya@munditrofeos.com',
+    licensePhoto: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 'p5',
+    firstName: 'Esteban',
+    lastName: 'Monge',
+    phone: '+506 8765-4321',
+    age: '31',
+    licenseNumber: 'CRI-99881',
+    expirationDate: '2027-05-14',
+    licenseType: 'C',
+    country: 'Costa Rica',
+    puesto: 'Piloto Entregas Rápidas - San José',
+    email: 'esteban.monge@munditrofeos.com',
+    licensePhoto: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80'
   }
 ];
 
@@ -258,7 +286,20 @@ const Storage = {
       localStorage.setItem(STORAGE_KEYS.PILOTS, JSON.stringify(DEFAULT_PILOTS));
       return DEFAULT_PILOTS;
     }
-    return JSON.parse(data);
+    const list = JSON.parse(data);
+    const updated = list.map(p => {
+      const matchSeed = DEFAULT_PILOTS.find(sp => sp.id === p.id || sp.licenseNumber === p.licenseNumber) || {};
+      return {
+        ...matchSeed,
+        ...p,
+        phone: p.phone || matchSeed.phone || '+502 5544-1234',
+        puesto: p.puesto || matchSeed.puesto || 'Piloto Corporativo',
+        country: p.country || matchSeed.country || 'Guatemala',
+        age: p.age || matchSeed.age || '30',
+        licenseType: p.licenseType || matchSeed.licenseType || 'C'
+      };
+    });
+    return updated;
   },
   savePilots(pilots) {
     localStorage.setItem(STORAGE_KEYS.PILOTS, JSON.stringify(pilots));
