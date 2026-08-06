@@ -366,6 +366,20 @@ function isVehicleAllowedForLicense(vehicleType, licenseType) {
   return true;
 }
 
+function isVehicleAllowedForPilot(vehicleType, pilot) {
+  if (!pilot) return true;
+  // If primary or secondary license is Tipo A, allowed for all
+  if (pilot.licenseType === 'A' || (pilot.hasSecondLicense && pilot.licenseType2 === 'A')) {
+    return true;
+  }
+  // If primary or secondary license is Tipo B, allowed for light & medium
+  if (pilot.licenseType === 'B' || (pilot.hasSecondLicense && pilot.licenseType2 === 'B')) {
+    return isVehicleAllowedForLicense(vehicleType, 'B');
+  }
+  // Otherwise check license Tipo C (light vehicles only)
+  return isVehicleAllowedForLicense(vehicleType, pilot.licenseType || 'C');
+}
+
 function handlePilotChange() {
   const select = document.getElementById('insp-pilot-id');
   if (!select) return;
@@ -435,7 +449,7 @@ function populateVehicleDropdown(pilotObj) {
 
   const vehicles = Storage.getVehicles();
 
-  // Filter vehicles according to license restriction (considering secondary license)
+  // Filter vehicles according to license restriction (considering primary & secondary licenses)
   const allowedVehicles = vehicles.filter(v => isVehicleAllowedForPilot(v.vehicleType, pilot));
 
   if (allowedVehicles.length === 0) {
@@ -463,10 +477,11 @@ function populateVehicleDropdown(pilotObj) {
     const isInsExpired = hasInsurance && v.policyExpiration && (new Date(v.policyExpiration) < today);
 
     if (isInsExpired) {
-      return `<option value="${v.id}" disabled style="color: #94a3b8; background: #f8fafc;">${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType}) — 🚫 SEGURO VENCIDO (NO DISPONIBLE)</option>`;
+      return `<option value="${v.id}" disabled style="color: #94a3b8; background: #f8fafc; font-weight: 500;">${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType}) — 🚫 SEGURO VENCIDO (NO SE PUEDE ESCOGER)</option>`;
     } else {
       if (!firstValidId) firstValidId = v.id;
-      return `<option value="${v.id}">${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType})</option>`;
+      const statusLabel = hasInsurance ? '— ✓ SEGURO VIGENTE' : '';
+      return `<option value="${v.id}">${v.brand || ''} ${v.model || ''} - Placa: ${v.plate} (${v.vehicleType}) ${statusLabel}</option>`;
     }
   }).join('');
 
