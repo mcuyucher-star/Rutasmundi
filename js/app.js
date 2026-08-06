@@ -1278,31 +1278,44 @@ function renderAdminPilotsTable() {
 
   tbody.innerHTML = filtered.map(p => {
     const expInfo = getLicenseStatus(p.expirationDate);
+    const cAcronym = getCountryAcronym(p.country);
+
     const photoThumb = p.licensePhoto 
-      ? `<img src="${p.licensePhoto}" style="width:38px; height:28px; object-fit:cover; border-radius:4px; border:1px solid #cbd5e1; cursor:pointer;" onclick="viewPilotLicenseModal('${p.id}')" title="Ver Licencia">`
-      : `<span style="font-size:10px; color:var(--text-muted);">Sin foto</span>`;
+      ? `<img src="${p.licensePhoto}" style="width:42px; height:30px; object-fit:cover; border-radius:6px; border:1px solid #cbd5e1; cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,0.05);" onclick="viewPilotLicenseModal('${p.id}')" title="Ver Licencia Digitalizada">`
+      : `<span style="font-size:10px; color:var(--text-muted); background:#f1f5f9; padding:3px 6px; border-radius:4px;">Sin foto</span>`;
 
     const defaultEmail = `${p.firstName.toLowerCase()}.${p.lastName.toLowerCase()}@munditrofeos.com`;
+
+    let licenseBadgeClass = 'background:#f0f9ff; color:#0369a1; border:1px solid #bae6fd;';
+    if (p.licenseType === 'A') licenseBadgeClass = 'background:#f3e8ff; color:#6d28d9; border:1px solid #d8b4fe;';
+    if (p.licenseType === 'B') licenseBadgeClass = 'background:#ecfdf5; color:#047857; border:1px solid #a7f3d0;';
 
     return `
       <tr>
         <td>
-          <div style="font-weight: 800; color: var(--dark-slate);">${p.firstName} ${p.lastName}</div>
-          <div style="font-size: 11px; color: #64748b; font-weight: 500;">✉️ ${p.email || defaultEmail}</div>
+          <div style="font-weight: 800; color: var(--dark-slate); font-size: 13px;">${p.firstName} ${p.lastName}</div>
+          <div style="font-size: 11px; color: #64748b; font-weight: 500; margin-top: 2px;">✉️ ${p.email || defaultEmail}</div>
         </td>
         <td>
-          <div style="font-weight: 800; color: var(--primary); font-size: 13px;">📞 ${p.phone || 'N/A'}</div>
+          <span style="display: inline-block; font-weight: 800; color: #0284c7; background: #e0f2fe; padding: 4px 10px; border-radius: 6px; font-size: 12px; border: 1px solid #bae6fd;">
+            📞 ${p.phone || 'N/A'}
+          </span>
         </td>
         <td>
           <div style="font-weight: 700; color: #1e293b; font-size: 12px;">${p.puesto || 'Piloto Corporativo'}</div>
-          <div style="font-size: 11px; color: #64748b;">🎂 ${p.age} años</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">🎂 ${p.age} años</div>
         </td>
-        <td><code>${p.licenseNumber}</code></td>
-        <td><span class="badge-chip badge-gray">Tipo ${p.licenseType}</span></td>
-        <td>${p.expirationDate}</td>
+        <td><code style="background:#f8fafc; padding:3px 6px; border-radius:4px; border:1px solid #e2e8f0; font-weight:700;">${p.licenseNumber}</code></td>
+        <td><span class="badge-chip" style="${licenseBadgeClass} font-weight:800;">Tipo ${p.licenseType}</span></td>
+        <td><strong style="color:#334155; font-size:12px;">${p.expirationDate}</strong></td>
         <td>${photoThumb}</td>
         <td><span class="badge-chip ${expInfo.colorClass}">${expInfo.text}</span></td>
-        <td><span style="font-weight: 600; color: #334155;">📍 ${p.country}</span></td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-weight: 700; color: #334155; font-size: 12px;">${p.country}</span>
+            <span style="background: #2563eb; color: #ffffff; font-weight: 800; font-size: 10px; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.05em;">${cAcronym}</span>
+          </div>
+        </td>
         <td>
           <div style="display: flex; gap: 6px; flex-wrap: wrap;">
             <button type="button" class="btn-secondary-custom" onclick="editPilot('${p.id}')" style="padding: 4px 8px; font-size: 11px; font-weight: 700;" title="Editar datos del piloto">
